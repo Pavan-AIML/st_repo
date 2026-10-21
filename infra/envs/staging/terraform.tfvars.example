@@ -1,0 +1,11 @@
+# Copy this file to terraform.tfvars (gitignored) and fill in real values.
+
+# Softtribe assessment subscription.
+subscription_id = "3e4b93a6-966a-4d17-af62-540ffd96a13c"
+
+# Default region per the task spec. Change only with approval.
+location = "germanywestcentral"
+
+# Optional: Entra group object IDs granted cluster-admin via Azure RBAC.
+# Leave as [] if only the deployer needs kubectl access.
+aks_admin_group_object_ids = []
