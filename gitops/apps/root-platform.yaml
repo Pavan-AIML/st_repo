@@ -1,0 +1,27 @@
+# App-of-apps root for cluster-wide platform addons (ingress-nginx,
+# cert-manager, ESO). Argo CD watches gitops/platform/ and syncs every
+# Application CR it finds there.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+    path: gitops/platform
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

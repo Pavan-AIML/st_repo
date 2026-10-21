@@ -1,0 +1,43 @@
+# The shoplite app for staging. Rendered from charts/shoplite with
+# values-staging.yaml. Argo CD will sync this into the shoplite-staging
+# namespace.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shoplite-staging
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+    path: charts/shoplite
+    helm:
+      releaseName: shoplite
+      valueFiles:
+        - values-staging.yaml
+      # Image tag is the one knob to bump on promotion. Overrides
+      # api.image.tag and worker.image.tag from the values file.
+      parameters:
+        - name: api.image.tag
+          value: "0.1.0"
+        - name: worker.image.tag
+          value: "0.1.0"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoplite-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m

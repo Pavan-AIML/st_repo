@@ -1,0 +1,40 @@
+# The shoplite app for prod. Promotion = PR that bumps api.image.tag or
+# worker.image.tag below after it's been verified in staging.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shoplite-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+    path: charts/shoplite
+    helm:
+      releaseName: shoplite
+      valueFiles:
+        - values-prod.yaml
+      parameters:
+        - name: api.image.tag
+          value: "0.1.0"
+        - name: worker.image.tag
+          value: "0.1.0"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoplite-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
