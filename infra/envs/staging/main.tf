@@ -1,8 +1,9 @@
 # ---------------------------------------------------------------------------
-# Staging environment composition.
+# Staging environment — the per-env resources.
 #
-# Wires the five modules together into a complete environment.
-# Nothing is created in Azure until `terraform apply` runs here.
+# Depends on shared (VNet, AKS, ACR, DNS zone). This composition only
+# creates the per-env RG + Postgres + Redis + Workload Identity for the
+# shoplite ServiceAccount in the shoplite-staging namespace.
 # ---------------------------------------------------------------------------
 
 terraform {
@@ -19,8 +20,6 @@ terraform {
     }
   }
 
-  # Remote state in the Azure storage account created by scripts/bootstrap-tfstate.sh.
-  # Backend blocks do not support variables — values hardcoded on purpose.
   backend "azurerm" {
     resource_group_name  = "rg-tfstate-shoplite"
     storage_account_name = "tfstateshoplite3e4b93a6"
@@ -40,13 +39,20 @@ provider "azurerm" {
   }
 }
 
-# Picks up the tenant ID + the currently logged-in principal (az login).
-# Used so we never hardcode the tenant.
-data "azurerm_client_config" "current" {}
+# ---------------------------------------------------------------------------
+# Read outputs from the shared composition.
+# ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# Env-level constants
-# ---------------------------------------------------------------------------
+data "terraform_remote_state" "shared" {
+  backend = "azurerm"
+  config = {
+    resource_group_name  = "rg-tfstate-shoplite"
+    storage_account_name = "tfstateshoplite3e4b93a6"
+    container_name       = "tfstate"
+    key                  = "shared.tfstate"
+    use_azuread_auth     = true
+  }
+}
 
 locals {
   env  = "staging"
@@ -60,79 +66,17 @@ locals {
 }
 
 # ---------------------------------------------------------------------------
-# Resource group — the top-level container that holds everything.
+# Per-env RG — holds the DB, Redis, and Workload Identity for this env.
 # ---------------------------------------------------------------------------
 
-resource "azurerm_resource_group" "main" {
+resource "azurerm_resource_group" "env" {
   name     = "rg-${local.name}"
   location = var.location
   tags     = local.tags
 }
 
 # ---------------------------------------------------------------------------
-# Networking — VNet, 3 subnets, Postgres private DNS zone.
-# ---------------------------------------------------------------------------
-
-module "networking" {
-  source = "../../modules/networking"
-
-  name                = local.name
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  # /16 per env. Prod will use 10.50.x.x so the two VNets could peer.
-  vnet_cidr            = "10.40.0.0/16"
-  aks_subnet_cidr      = "10.40.0.0/20"
-  db_subnet_cidr       = "10.40.16.0/24"
-  services_subnet_cidr = "10.40.17.0/24"
-
-  tags = local.tags
-}
-
-# ---------------------------------------------------------------------------
-# AKS — one cluster with system + user node pools, OIDC + Workload Identity.
-# ---------------------------------------------------------------------------
-
-module "aks" {
-  source = "../../modules/aks"
-
-  name                = local.name
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-  aks_subnet_id       = module.networking.aks_subnet_id
-
-  tenant_id              = data.azurerm_client_config.current.tenant_id
-  admin_group_object_ids = var.aks_admin_group_object_ids
-
-  # Staging — small and cheap. Prod will bump these.
-  sku_tier            = "Free"
-  system_node_vm_size = "Standard_B2s"
-  system_node_count   = 1
-  user_node_vm_size   = "Standard_B2s"
-  user_node_min_count = 1
-  user_node_max_count = 3
-
-  tags = local.tags
-}
-
-# ---------------------------------------------------------------------------
-# Registry — ACR + AcrPull for the AKS kubelet identity.
-# ---------------------------------------------------------------------------
-
-module "registry" {
-  source = "../../modules/registry"
-
-  name                       = local.name
-  location                   = var.location
-  resource_group_name        = azurerm_resource_group.main.name
-  sku                        = "Basic"
-  kubelet_identity_object_id = module.aks.kubelet_identity_object_id
-
-  tags = local.tags
-}
-
-# ---------------------------------------------------------------------------
-# Database — Postgres Flexible Server (VNet-integrated) + Redis Basic C0.
+# Database — Postgres into the shared VNet's db-staging subnet.
 # ---------------------------------------------------------------------------
 
 module "database" {
@@ -140,19 +84,16 @@ module "database" {
 
   name                         = local.name
   location                     = var.location
-  resource_group_name          = azurerm_resource_group.main.name
-  db_subnet_id                 = module.networking.db_subnet_id
-  postgres_private_dns_zone_id = module.networking.postgres_private_dns_zone_id
+  resource_group_name          = azurerm_resource_group.env.name
+  db_subnet_id                 = data.terraform_remote_state.shared.outputs.db_subnet_ids[local.env]
+  postgres_private_dns_zone_id = data.terraform_remote_state.shared.outputs.postgres_private_dns_zone_id
 
   tags = local.tags
 }
 
 # ---------------------------------------------------------------------------
-# Identity — UAMI + federated credentials for Workload Identity.
-#
-# One identity per Kubernetes ServiceAccount that will call Azure APIs.
-# For staging we start with the shoplite workload only; External Secrets
-# Operator will be added in Phase 5 as another map entry.
+# Identity — one UAMI federated to the shoplite SA in the shoplite-staging
+# namespace, trusted via the shared AKS cluster's OIDC issuer.
 # ---------------------------------------------------------------------------
 
 module "identity" {
@@ -160,8 +101,8 @@ module "identity" {
 
   name                = local.name
   location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-  oidc_issuer_url     = module.aks.oidc_issuer_url
+  resource_group_name = azurerm_resource_group.env.name
+  oidc_issuer_url     = data.terraform_remote_state.shared.outputs.aks_oidc_issuer_url
 
   workloads = {
     shoplite = {

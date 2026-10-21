@@ -4,7 +4,8 @@
 env: prod
 
 image:
-  registry: crshopliteprod.azurecr.io
+  # Shared ACR per ADR-002 — same registry for both envs.
+  registry: crshoplite.azurecr.io
 
 serviceAccount:
   name: shoplite

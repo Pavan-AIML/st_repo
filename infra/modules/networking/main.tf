@@ -9,7 +9,8 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------
-# Virtual Network — the private IP space everything else lives inside.
+# Shared Virtual Network — hosts the AKS cluster and every env's DB subnet.
+# One /16 for the whole platform; subnets carved out for each role.
 # ---------------------------------------------------------------------------
 resource "azurerm_virtual_network" "this" {
   name                = "vnet-${var.name}"
@@ -30,15 +31,31 @@ resource "azurerm_subnet" "aks" {
 }
 
 # ---------------------------------------------------------------------------
-# DB subnet — delegated to Postgres Flexible Server so the DB lives inside
-# the VNet (no public endpoint). Azure requires a dedicated subnet + the
-# "fs" delegation for this to work.
+# Services subnet — host for private endpoints (Redis, Key Vault) and
+# internal ILBs. Shared across envs.
 # ---------------------------------------------------------------------------
-resource "azurerm_subnet" "db" {
-  name                              = "snet-db"
+resource "azurerm_subnet" "services" {
+  name                              = "snet-services"
   resource_group_name               = var.resource_group_name
   virtual_network_name              = azurerm_virtual_network.this.name
-  address_prefixes                  = [var.db_subnet_cidr]
+  address_prefixes                  = [var.services_subnet_cidr]
+  private_endpoint_network_policies = "Disabled"
+}
+
+# ---------------------------------------------------------------------------
+# Per-env database subnets — one delegated subnet per Postgres Flexible
+# Server. Each env gets its own CIDR so DBs can be torn down independently.
+#
+# Keyed on env name (e.g. "staging", "prod") so staging and prod can reference
+# their specific subnet by name from the output map.
+# ---------------------------------------------------------------------------
+resource "azurerm_subnet" "db" {
+  for_each = var.db_subnet_cidrs
+
+  name                              = "snet-db-${each.key}"
+  resource_group_name               = var.resource_group_name
+  virtual_network_name              = azurerm_virtual_network.this.name
+  address_prefixes                  = [each.value]
   private_endpoint_network_policies = "Disabled"
 
   delegation {
@@ -51,21 +68,7 @@ resource "azurerm_subnet" "db" {
 }
 
 # ---------------------------------------------------------------------------
-# Services subnet — host for private endpoints (Redis, Key Vault) and
-# ingress internal load balancer if we ever need one.
-# ---------------------------------------------------------------------------
-resource "azurerm_subnet" "services" {
-  name                              = "snet-services"
-  resource_group_name               = var.resource_group_name
-  virtual_network_name              = azurerm_virtual_network.this.name
-  address_prefixes                  = [var.services_subnet_cidr]
-  private_endpoint_network_policies = "Disabled"
-}
-
-# ---------------------------------------------------------------------------
-# Private DNS zone for Postgres Flexible Server. Pods resolve the DB's
-# <name>.postgres.database.azure.com hostname to a private IP via this zone.
-# The database module will attach the server to this zone.
+# Private DNS zone for Postgres. Both env Postgres servers register here.
 # ---------------------------------------------------------------------------
 resource "azurerm_private_dns_zone" "postgres" {
   name                = "${var.name}.postgres.database.azure.com"

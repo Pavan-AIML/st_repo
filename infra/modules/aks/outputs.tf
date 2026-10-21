@@ -38,3 +38,20 @@ output "kube_config_raw" {
   value       = azurerm_kubernetes_cluster.this.kube_config_raw
   sensitive   = true
 }
+
+# ---------------------------------------------------------------------------
+# Pieces of kubeconfig the helm/kubernetes Terraform providers need to
+# authenticate against this cluster (via `exec` with kubelogin + azurecli).
+# ---------------------------------------------------------------------------
+
+output "cluster_host" {
+  description = "AKS API server URL. Consumed by the helm/kubernetes providers."
+  value       = azurerm_kubernetes_cluster.this.kube_config.0.host
+  sensitive   = true
+}
+
+output "cluster_ca_certificate" {
+  description = "Base64-encoded cluster CA cert. Consumed by the helm/kubernetes providers."
+  value       = azurerm_kubernetes_cluster.this.kube_config.0.cluster_ca_certificate
+  sensitive   = true
+}

@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (gitignored) before `make apply-shared`.
+
+subscription_id = "3e4b93a6-966a-4d17-af62-540ffd96a13c"
+location        = "germanywestcentral"
+
+# IMPORTANT: include your own Entra object ID (or a group you're in).
+# Without this, Terraform cannot authenticate to AKS to install Argo CD.
+# Your object ID: 23f90d05-9596-4d4a-8b04-cbeb85f9818b
+aks_admin_group_object_ids = ["23f90d05-9596-4d4a-8b04-cbeb85f9818b"]

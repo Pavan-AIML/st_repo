@@ -1,10 +1,5 @@
 # ---------------------------------------------------------------------------
-# Prod environment composition.
-#
-# Structurally identical to staging — the task spec requires "modules
-# reused for staging and prod, differing only by variables." The only
-# differences here are: state key, CIDR, env name/tag, autoscale max,
-# namespace. Any SKU bumps live in locals/vars, not in module source.
+# Prod environment — mirror of staging with different env tag + namespace.
 # ---------------------------------------------------------------------------
 
 terraform {
@@ -40,7 +35,16 @@ provider "azurerm" {
   }
 }
 
-data "azurerm_client_config" "current" {}
+data "terraform_remote_state" "shared" {
+  backend = "azurerm"
+  config = {
+    resource_group_name  = "rg-tfstate-shoplite"
+    storage_account_name = "tfstateshoplite3e4b93a6"
+    container_name       = "tfstate"
+    key                  = "shared.tfstate"
+    use_azuread_auth     = true
+  }
+}
 
 locals {
   env  = "prod"
@@ -53,69 +57,10 @@ locals {
   }
 }
 
-resource "azurerm_resource_group" "main" {
+resource "azurerm_resource_group" "env" {
   name     = "rg-${local.name}"
   location = var.location
   tags     = local.tags
-}
-
-# ---------------------------------------------------------------------------
-# Networking — 10.50.0.0/16 so prod and staging VNets never collide
-# (and could peer in future without renumbering).
-# ---------------------------------------------------------------------------
-
-module "networking" {
-  source = "../../modules/networking"
-
-  name                = local.name
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  vnet_cidr            = "10.50.0.0/16"
-  aks_subnet_cidr      = "10.50.0.0/20"
-  db_subnet_cidr       = "10.50.16.0/24"
-  services_subnet_cidr = "10.50.17.0/24"
-
-  tags = local.tags
-}
-
-# ---------------------------------------------------------------------------
-# AKS — same cluster shape as staging. SKU stays "Free" because the
-# €200 total budget rules out the Standard tier (~€70/mo for the SLA).
-# Autoscale max bumped to 5 so prod has more HPA headroom.
-# ---------------------------------------------------------------------------
-
-module "aks" {
-  source = "../../modules/aks"
-
-  name                = local.name
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-  aks_subnet_id       = module.networking.aks_subnet_id
-
-  tenant_id              = data.azurerm_client_config.current.tenant_id
-  admin_group_object_ids = var.aks_admin_group_object_ids
-
-  sku_tier            = "Free"
-  system_node_vm_size = "Standard_B2s"
-  system_node_count   = 1
-  user_node_vm_size   = "Standard_B2s"
-  user_node_min_count = 2
-  user_node_max_count = 5
-
-  tags = local.tags
-}
-
-module "registry" {
-  source = "../../modules/registry"
-
-  name                       = local.name
-  location                   = var.location
-  resource_group_name        = azurerm_resource_group.main.name
-  sku                        = "Basic"
-  kubelet_identity_object_id = module.aks.kubelet_identity_object_id
-
-  tags = local.tags
 }
 
 module "database" {
@@ -123,9 +68,9 @@ module "database" {
 
   name                         = local.name
   location                     = var.location
-  resource_group_name          = azurerm_resource_group.main.name
-  db_subnet_id                 = module.networking.db_subnet_id
-  postgres_private_dns_zone_id = module.networking.postgres_private_dns_zone_id
+  resource_group_name          = azurerm_resource_group.env.name
+  db_subnet_id                 = data.terraform_remote_state.shared.outputs.db_subnet_ids[local.env]
+  postgres_private_dns_zone_id = data.terraform_remote_state.shared.outputs.postgres_private_dns_zone_id
 
   tags = local.tags
 }
@@ -135,8 +80,8 @@ module "identity" {
 
   name                = local.name
   location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-  oidc_issuer_url     = module.aks.oidc_issuer_url
+  resource_group_name = azurerm_resource_group.env.name
+  oidc_issuer_url     = data.terraform_remote_state.shared.outputs.aks_oidc_issuer_url
 
   workloads = {
     shoplite = {
