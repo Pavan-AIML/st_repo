@@ -1,0 +1,60 @@
+# Local smoke test for the shoplite stack.
+# Not used in production — purely for verifying api + worker + their deps
+# wire together before we deploy to AKS.
+#
+# Usage:
+#   docker compose up --build       # start everything (foreground)
+#   docker compose up -d --build    # start detached
+#   docker compose logs -f api      # follow api logs
+#   docker compose down -v          # stop and wipe postgres data
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shoplite
+      POSTGRES_PASSWORD: shoplite
+      POSTGRES_DB: shoplite
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shoplite -d shoplite"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://shoplite:shoplite@postgres:5432/shoplite
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./apps/worker
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://shoplite:shoplite@postgres:5432/shoplite
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
