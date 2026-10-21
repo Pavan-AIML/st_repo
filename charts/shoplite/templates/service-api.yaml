@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "shoplite.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api

@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  # If HPA is enabled, let it own replicas; otherwise respect the value.
+  {{- if not .Values.api.autoscaling.enabled }}
+  replicas: {{ .Values.api.replicaCount }}
+  {{- end }}
+  # Rolling update: never drop below desired count. Zero 5xx under load.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "shoplite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+        # Signal to the AKS Workload Identity webhook that this pod
+        # should get a federated token projected.
+        azure.workload.identity/use: "true"
+      annotations:
+        # Prometheus scrape hint — picked up by kube-prometheus-stack in Task 2.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.api.containerPort }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "shoplite.serviceAccountName" . }}
+      # Pod-level security context — baseline for Pod Security Standards: restricted.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: "{{ .Values.image.registry }}/{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.containerPort }}
+              protocol: TCP
+          # Container-level security context — drop everything you can.
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          # Env comes from the Secret ESO materialises from Key Vault (Phase 5).
+          # When externalSecrets.enabled=false we skip this, so helm template renders
+          # cleanly even before ESO is installed.
+          {{- if .Values.externalSecrets.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.externalSecrets.secretName }}
+          {{- end }}
+          # Liveness: "is the process alive?" — restarts the pod on failure.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          # Readiness: "can I serve traffic?" — removes pod from Service on failure.
+          # /readyz hits Postgres so an unreachable DB takes the pod out of rotation.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+          # Startup probe gives slow starts breathing room before liveness kicks in.
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          # readOnlyRootFilesystem means we need writable scratch space.
+          # /tmp is where Python may write temp files; emptyDir is RAM-backed by default.
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

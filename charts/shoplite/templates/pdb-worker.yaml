@@ -1,0 +1,15 @@
+{{- if gt (int .Values.worker.replicaCount) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "shoplite.fullname" . }}-worker
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  minAvailable: {{ .Values.worker.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+{{- end }}

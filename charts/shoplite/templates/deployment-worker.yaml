@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shoplite.fullname" . }}-worker
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  # Worker is stateless but single-connection to Redis+Postgres — Recreate is fine.
+  # Could do RollingUpdate too; using Recreate so there's never two workers racing
+  # on the same job during deploys.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "shoplite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ include "shoplite.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: "{{ .Values.image.registry }}/{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          {{- if .Values.externalSecrets.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.externalSecrets.secretName }}
+          {{- end }}
+          # Worker has no HTTP server — liveness via a process-level signal.
+          # If the Python process is up, kubelet counts it alive. The worker's
+          # internal retry loop handles Redis/DB blips without needing kubelet.
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
