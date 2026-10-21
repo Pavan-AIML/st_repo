@@ -43,3 +43,16 @@ externalSecrets:
   enabled: false
   secretStoreName: azure-keyvault
   secretName: shoplite-secrets
+
+networkPolicies:
+  enabled: true
+  ingressNamespace: ingress-nginx
+  postgresSubnetCidr: 10.40.19.0/24   # snet-db-prod
+  vnetCidr: 10.40.0.0/16
+  podCidr: 10.244.0.0/16
+  serviceCidr: 10.0.0.0/16
+
+rbac:
+  devReadonly:
+    enabled: true
+    groupObjectId: ""

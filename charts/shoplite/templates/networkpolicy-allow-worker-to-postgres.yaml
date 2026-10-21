@@ -1,0 +1,23 @@
+{{- if .Values.networkPolicies.enabled }}
+# Allow worker pods to reach Postgres on port 5432.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-worker-to-postgres
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.postgresSubnetCidr }}
+      ports:
+        - protocol: TCP
+          port: 5432
+{{- end }}

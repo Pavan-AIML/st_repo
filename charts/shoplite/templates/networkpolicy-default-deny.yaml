@@ -1,0 +1,17 @@
+{{- if .Values.networkPolicies.enabled }}
+# Default-deny for the whole namespace. Any pod in this namespace has
+# ZERO ingress and ZERO egress unless another NetworkPolicy explicitly
+# allows the traffic. This is the "zero-trust" baseline.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+spec:
+  podSelector: {}         # all pods in this namespace
+  policyTypes:
+    - Ingress
+    - Egress
+  # No ingress / egress rules → everything denied.
+{{- end }}

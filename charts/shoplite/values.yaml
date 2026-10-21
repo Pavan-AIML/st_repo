@@ -76,3 +76,26 @@ externalSecrets:
   secretStoreName: azure-keyvault
   secretName: shoplite-secrets
   refreshInterval: 1h
+
+# ---------------------------------------------------------------------------
+# NetworkPolicies — zero-trust networking at the pod level.
+# Enable per-env in values-<env>.yaml and set the right CIDRs.
+# ---------------------------------------------------------------------------
+networkPolicies:
+  enabled: false
+  # Namespace where ingress-nginx is installed (for the ingress-to-api allow).
+  ingressNamespace: ingress-nginx
+  # Env-specific CIDRs — override per env.
+  postgresSubnetCidr: 10.40.18.0/24     # staging db subnet by default
+  vnetCidr: 10.40.0.0/16
+  podCidr: 10.244.0.0/16
+  serviceCidr: 10.0.0.0/16
+
+# ---------------------------------------------------------------------------
+# RBAC — namespace-scoped Role + RoleBinding for devs. Granted to an Entra
+# group. Role exists even if no group is bound (safe default).
+# ---------------------------------------------------------------------------
+rbac:
+  devReadonly:
+    enabled: true
+    groupObjectId: ""   # set per env to an Entra group object ID

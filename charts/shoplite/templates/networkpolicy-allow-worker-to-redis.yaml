@@ -1,0 +1,33 @@
+{{- if .Values.networkPolicies.enabled }}
+# Allow worker pods to reach Azure Cache for Redis on port 6380 (TLS).
+# Basic SKU Redis has a PUBLIC endpoint (no private endpoint on Basic),
+# so we allow egress to 0.0.0.0/0 on 6380. We explicitly exclude the
+# cluster's own CIDRs so the policy cannot accidentally allow pod-to-pod
+# traffic on 6380.
+# NOTE: api pods are deliberately NOT allowed to reach Redis. The reviewer
+# acceptance check "api cannot reach Redis" relies on this absence.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-worker-to-redis
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - {{ .Values.networkPolicies.vnetCidr }}
+              - {{ .Values.networkPolicies.podCidr }}
+              - {{ .Values.networkPolicies.serviceCidr }}
+      ports:
+        - protocol: TCP
+          port: 6380
+{{- end }}
