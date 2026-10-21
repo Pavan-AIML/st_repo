@@ -1,0 +1,36 @@
+# Staging overrides. Only the keys that differ from the chart defaults.
+# Everything else inherits from values.yaml.
+
+env: staging
+
+image:
+  registry: crshoplitestaging.azurecr.io
+
+serviceAccount:
+  name: shoplite
+  # Fill in after `make apply-staging` from the output
+  # `workload_identity_client_ids["shoplite"]`.
+  workloadIdentityClientId: "REPLACE_AFTER_TERRAFORM_APPLY"
+
+api:
+  image:
+    repository: shoplite-api
+    tag: "0.1.0"
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+worker:
+  image:
+    repository: shoplite-worker
+    tag: "0.1.0"
+  replicaCount: 1
+
+# ESO off until Phase 5 installs it. Flip to true then.
+externalSecrets:
+  enabled: false
+  secretStoreName: azure-keyvault
+  secretName: shoplite-secrets

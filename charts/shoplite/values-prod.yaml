@@ -1,0 +1,44 @@
+# Prod overrides. Differences from staging: own registry, higher replica
+# counts, higher HPA ceiling, higher worker count.
+
+env: prod
+
+image:
+  registry: crshopliteprod.azurecr.io
+
+serviceAccount:
+  name: shoplite
+  workloadIdentityClientId: "REPLACE_AFTER_TERRAFORM_APPLY"
+
+api:
+  image:
+    repository: shoplite-api
+    tag: "0.1.0"
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 150m
+      memory: 192Mi
+    limits:
+      cpu: 750m
+      memory: 384Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 65
+  pdb:
+    minAvailable: 2
+
+worker:
+  image:
+    repository: shoplite-worker
+    tag: "0.1.0"
+  replicaCount: 2
+  pdb:
+    minAvailable: 1
+
+externalSecrets:
+  enabled: false
+  secretStoreName: azure-keyvault
+  secretName: shoplite-secrets
