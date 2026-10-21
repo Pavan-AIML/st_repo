@@ -1,0 +1,78 @@
+# Default values. Each env (staging, prod) overrides a subset in its own
+# values-<env>.yaml file. Keep this file conservative — "if nothing overrides,
+# we should still render a safe deployment."
+
+# ---------------------------------------------------------------------------
+# Env identity — overridden per env.
+# ---------------------------------------------------------------------------
+env: dev
+nameOverride: ""
+fullnameOverride: ""
+
+# ---------------------------------------------------------------------------
+# Image registry — overridden per env (crshoplitestaging vs crshopliteprod).
+# ---------------------------------------------------------------------------
+image:
+  registry: crshoplitedev.azurecr.io
+  pullPolicy: IfNotPresent
+
+# ---------------------------------------------------------------------------
+# ServiceAccount — Workload Identity enabled.
+# Set clientId per env to the Entra client ID from Terraform output
+# `workload_identity_client_ids["shoplite"]`.
+# ---------------------------------------------------------------------------
+serviceAccount:
+  name: shoplite
+  workloadIdentityClientId: ""   # REQUIRED per env
+
+# ---------------------------------------------------------------------------
+# api — HTTP service, HPA-scaled on CPU.
+# ---------------------------------------------------------------------------
+api:
+  image:
+    repository: shoplite-api
+    tag: "0.1.0"
+  replicaCount: 2
+  containerPort: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  pdb:
+    minAvailable: 1
+
+# ---------------------------------------------------------------------------
+# worker — background consumer, no HTTP port.
+# ---------------------------------------------------------------------------
+worker:
+  image:
+    repository: shoplite-worker
+    tag: "0.1.0"
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  pdb:
+    minAvailable: 1
+
+# ---------------------------------------------------------------------------
+# Secrets — ExternalSecret (Phase 5) will pull these from Key Vault.
+# Feature-flagged off until ESO is installed in the cluster.
+# ---------------------------------------------------------------------------
+externalSecrets:
+  enabled: false
+  secretStoreName: azure-keyvault
+  secretName: shoplite-secrets
+  refreshInterval: 1h

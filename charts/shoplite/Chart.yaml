@@ -1,0 +1,13 @@
+apiVersion: v2
+name: shoplite
+description: ShopLite — api + worker on Postgres and Redis, deployed to AKS via Argo CD.
+type: application
+
+# Chart version — bump on any template change.
+version: 0.1.0
+
+# Default app version — overridden per env in gitops/<env>/shoplite-app.yaml.
+appVersion: "0.1.0"
+
+maintainers:
+  - name: Pavan Kumar
