@@ -35,7 +35,13 @@ terraform {
 
 provider "azurerm" {
   subscription_id = var.subscription_id
-  features {}
+  features {
+    resource_group {
+      # Allow RG destroy to clean up any residual resources (e.g. DNS zones)
+      # that get left behind by sibling teardowns.
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 data "azurerm_client_config" "current" {}
