@@ -9,7 +9,11 @@ image:
 
 serviceAccount:
   name: shoplite
-  workloadIdentityClientId: "REPLACE_AFTER_TERRAFORM_APPLY"
+  # From `terraform output workload_identity_client_ids` in envs/prod/.
+  workloadIdentityClientId: "9ad31be6-fe4a-4af5-a796-f335087a22c7"
+
+redis:
+  url: "redis://redis-master.shoplite-prod.svc.cluster.local:6379"
 
 api:
   image:

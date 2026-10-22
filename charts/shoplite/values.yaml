@@ -26,6 +26,13 @@ serviceAccount:
   workloadIdentityClientId: ""   # REQUIRED per env
 
 # ---------------------------------------------------------------------------
+# Redis — now in-cluster via the Bitnami chart (per ADR-003).
+# Each env has its own Redis in its namespace at redis-master.<ns>.svc.
+# ---------------------------------------------------------------------------
+redis:
+  url: "redis://redis-master.default.svc.cluster.local:6379"
+
+# ---------------------------------------------------------------------------
 # api — HTTP service, HPA-scaled on CPU.
 # ---------------------------------------------------------------------------
 api:

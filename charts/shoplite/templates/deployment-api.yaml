@@ -58,9 +58,13 @@ spec:
             runAsNonRoot: true
             capabilities:
               drop: ["ALL"]
-          # Env comes from the Secret ESO materialises from Key Vault (Phase 5).
-          # When externalSecrets.enabled=false we skip this, so helm template renders
-          # cleanly even before ESO is installed.
+          # REDIS_URL is a plain hostname (no credential) — in-cluster Redis has
+          # auth disabled per ADR-003. DATABASE_URL comes from the Secret ESO
+          # materialises from Key Vault (Phase 5) — envFrom only renders when
+          # externalSecrets.enabled=true so helm template works pre-ESO.
+          env:
+            - name: REDIS_URL
+              value: {{ .Values.redis.url | quote }}
           {{- if .Values.externalSecrets.enabled }}
           envFrom:
             - secretRef:

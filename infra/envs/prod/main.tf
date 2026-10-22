@@ -72,6 +72,11 @@ module "database" {
   db_subnet_id                 = data.terraform_remote_state.shared.outputs.db_subnet_ids[local.env]
   postgres_private_dns_zone_id = data.terraform_remote_state.shared.outputs.postgres_private_dns_zone_id
 
+  # General-Purpose SKU for prod — Burstable B1ms hit RegionalAllocationFailed
+  # in swedencentral. GP_Standard_D2s_v3 is the same family as our AKS nodes,
+  # which are proven to have capacity here.
+  postgres_sku_name = "GP_Standard_D2s_v3"
+
   tags = local.tags
 }
 

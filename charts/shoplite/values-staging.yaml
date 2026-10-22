@@ -9,9 +9,11 @@ image:
 
 serviceAccount:
   name: shoplite
-  # Fill in after `make apply-staging` from the output
-  # `workload_identity_client_ids["shoplite"]`.
-  workloadIdentityClientId: "REPLACE_AFTER_TERRAFORM_APPLY"
+  # From `terraform output workload_identity_client_ids` in envs/staging/.
+  workloadIdentityClientId: "32d99ae1-5ef0-4026-ac45-5f79c321dd70"
+
+redis:
+  url: "redis://redis-master.shoplite-staging.svc.cluster.local:6379"
 
 api:
   image:
