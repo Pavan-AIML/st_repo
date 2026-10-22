@@ -6,7 +6,7 @@ variable "subscription_id" {
 variable "location" {
   description = "Azure region. Switched from germanywestcentral to westeurope due to AKS capacity constraints in GWC."
   type        = string
-  default     = "westeurope"
+  default     = "swedencentral"
 }
 
 variable "aks_admin_group_object_ids" {

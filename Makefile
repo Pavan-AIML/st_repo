@@ -1,5 +1,5 @@
 SUBSCRIPTION_ID := 3e4b93a6-966a-4d17-af62-540ffd96a13c
-REGION          := westeurope
+REGION          := swedencentral
 
 SHARED_DIR  := infra/envs/shared
 STAGING_DIR := infra/envs/staging

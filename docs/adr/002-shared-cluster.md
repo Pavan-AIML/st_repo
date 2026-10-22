@@ -12,10 +12,13 @@ The task spec says:
 > rg-shoplite-staging, rg-shoplite-prod); a second cluster only with a written
 > justification."*
 
-**Region note:** Spec defaults to `germanywestcentral`. During apply we hit
-`AKSCapacityHeavyUsage` from Azure — the region refused new AKS clusters
-due to platform-wide capacity constraints. With Mario's approval we moved
-to `westeurope`. All resources, same code, same cost.
+**Region note:** Spec defaults to `germanywestcentral`. GWC refused new
+AKS with `AKSCapacityHeavyUsage` (platform-wide capacity constraint).
+Westeurope returned `RequestDisallowedByAzure: not accepting new customers`.
+Northeurope allowed deploying but had 0 quota for every allowed SKU
+family (catch-22). Settled on `swedencentral` where a proven-working
+`Standard_D2s_v3` cluster already runs in another RG (DSv3 family: 4/10
+vCPUs used). All resources, same code, same cost.
 
 ## Decision
 
