@@ -1,5 +1,5 @@
 output "postgres_server_fqdn" {
-  description = "Private FQDN of the Postgres server, e.g. pg-shoplite-staging.<zone>.postgres.database.azure.com."
+  description = "Private FQDN of the Postgres server."
   value       = azurerm_postgresql_flexible_server.this.fqdn
 }
 
@@ -25,24 +25,8 @@ output "postgres_connection_string" {
   sensitive   = true
 }
 
-output "redis_hostname" {
-  description = "Redis hostname, e.g. redis-shoplite-staging.redis.cache.windows.net."
-  value       = azurerm_redis_cache.this.hostname
-}
-
-output "redis_ssl_port" {
-  description = "Redis TLS port (6380)."
-  value       = azurerm_redis_cache.this.ssl_port
-}
-
-output "redis_primary_access_key" {
-  description = "Redis primary access key. Sensitive — goes into Key Vault."
-  value       = azurerm_redis_cache.this.primary_access_key
-  sensitive   = true
-}
-
-output "redis_connection_string" {
-  description = "redis:// URL with password and TLS. Sensitive."
-  value       = "rediss://:${azurerm_redis_cache.this.primary_access_key}@${azurerm_redis_cache.this.hostname}:${azurerm_redis_cache.this.ssl_port}"
-  sensitive   = true
-}
+# ---------------------------------------------------------------------------
+# Redis — see ADR-003. Moved in-cluster via Helm chart (installed by GitOps).
+# Pods reach it at redis-master.redis.svc.cluster.local:6379.
+# No Terraform-managed Redis outputs anymore.
+# ---------------------------------------------------------------------------

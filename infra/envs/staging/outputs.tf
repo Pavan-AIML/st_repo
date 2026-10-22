@@ -6,9 +6,8 @@ output "postgres_server_fqdn" {
   value = module.database.postgres_server_fqdn
 }
 
-output "redis_hostname" {
-  value = module.database.redis_hostname
-}
+# Redis moved in-cluster — no Azure Redis output (see ADR-003).
+# Workers reach it at redis-master.redis.svc.cluster.local:6379.
 
 output "workload_identity_client_ids" {
   description = "Map of workload-name -> Entra client ID. Annotate ServiceAccounts with these."

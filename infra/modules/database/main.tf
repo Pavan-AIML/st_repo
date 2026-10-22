@@ -28,9 +28,8 @@ resource "random_password" "postgres_admin" {
 # ---------------------------------------------------------------------------
 # Azure Database for PostgreSQL — Flexible Server.
 #
-# VNet-integrated (not public). The server lives inside the delegated DB
-# subnet from the networking module and resolves via the private DNS zone,
-# so pods reach it over the private network only.
+# VNet-integrated (not public). AzureRM 4.x requires explicit
+# public_network_access_enabled = false when the DB is VNet-attached.
 # ---------------------------------------------------------------------------
 resource "azurerm_postgresql_flexible_server" "this" {
   name                = "pg-${var.name}"
@@ -45,14 +44,13 @@ resource "azurerm_postgresql_flexible_server" "this" {
   storage_mb = var.postgres_storage_mb
 
   # VNet integration — DB gets a private IP inside the delegated subnet.
-  delegated_subnet_id = var.db_subnet_id
-  private_dns_zone_id = var.postgres_private_dns_zone_id
+  delegated_subnet_id           = var.db_subnet_id
+  private_dns_zone_id           = var.postgres_private_dns_zone_id
+  public_network_access_enabled = false
 
-  # Backups: 7 days PITR is the Flexible Server default; explicit here for clarity.
   backup_retention_days        = 7
   geo_redundant_backup_enabled = false
 
-  # Single-zone for cost. prod could flip to zone-redundant HA later.
   zone = "1"
 
   tags = var.tags
@@ -73,23 +71,11 @@ resource "azurerm_postgresql_flexible_server_database" "app" {
 }
 
 # ---------------------------------------------------------------------------
-# Azure Cache for Redis — Basic C0.
+# Redis — ADR-003: Microsoft retired Azure Cache for Redis in October 2026;
+# new creates are rejected. The replacement (Azure Managed Redis / Redis
+# Enterprise) starts at ~€200/mo, blowing the assessment budget. We moved
+# Redis in-cluster via the Bitnami Redis Helm chart installed by GitOps.
 #
-# Basic SKU does not support private endpoints or VNet injection (that's
-# Premium only, ~20x the cost). For the assessment we use public endpoint
-# with TLS-only + access key, store the key in Key Vault in Phase 5, and
-# document the tradeoff in docs/adr.
+# This module therefore creates NO Redis resource. The worker reaches Redis
+# at redis-master.redis.svc.cluster.local:6379 inside the cluster.
 # ---------------------------------------------------------------------------
-resource "azurerm_redis_cache" "this" {
-  name                 = "redis-${var.name}"
-  location             = var.location
-  resource_group_name  = var.resource_group_name
-  capacity             = var.redis_capacity
-  family               = "C"
-  sku_name             = var.redis_sku_name
-  non_ssl_port_enabled = false
-  minimum_tls_version  = "1.2"
-  tags                 = var.tags
-
-  redis_configuration {}
-}

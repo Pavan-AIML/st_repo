@@ -1,0 +1,89 @@
+# Bitnami Redis — in-cluster replacement for Azure Cache for Redis
+# (see docs/adr/003-in-cluster-redis.md).
+#
+# One Redis per env, each in its own namespace, so staging and prod are
+# isolated. ApplicationSet would be cleaner but we only have 2 envs; two
+# Applications is explicit and easier to reason about.
+#
+# Access from the worker:
+#   redis://redis-master.shoplite-staging.svc.cluster.local:6379
+#   redis://redis-master.shoplite-prod.svc.cluster.local:6379
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-staging
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: redis
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 20.6.0
+    helm:
+      releaseName: redis
+      values: |
+        architecture: standalone
+        auth:
+          enabled: false
+        master:
+          persistence:
+            enabled: false
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoplite-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: redis
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 20.6.0
+    helm:
+      releaseName: redis
+      values: |
+        architecture: standalone
+        auth:
+          enabled: false
+        master:
+          persistence:
+            enabled: false
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoplite-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
