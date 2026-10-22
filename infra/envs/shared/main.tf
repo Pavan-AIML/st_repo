@@ -135,9 +135,9 @@ module "aks" {
   admin_group_object_ids = var.aks_admin_group_object_ids
 
   sku_tier            = "Free"
-  system_node_vm_size = "Standard_B2s"
+  system_node_vm_size = "Standard_D2s_v3"
   system_node_count   = 1
-  user_node_vm_size   = "Standard_B2s"
+  user_node_vm_size   = "Standard_D2s_v3"
   user_node_min_count = 1
   user_node_max_count = 3
 

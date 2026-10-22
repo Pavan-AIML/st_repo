@@ -4,9 +4,9 @@ variable "subscription_id" {
 }
 
 variable "location" {
-  description = "Azure region. Per the task spec: germanywestcentral."
+  description = "Azure region. Switched from germanywestcentral to westeurope due to AKS capacity constraints in GWC (approved by Mario)."
   type        = string
-  default     = "germanywestcentral"
+  default     = "westeurope"
 }
 
 variable "aks_admin_group_object_ids" {
