@@ -247,10 +247,11 @@ See `docs/promotion.md` for the full flow (TBD).
 
 ## Hour log
 
-| Date | Hours | Phase |
-|------|-------|-------|
-| 2026-10-20 | 2h  | 0 — bootstrap & skeleton |
-| 2026-10-21 | 8h  | 1–4 — Terraform modules, Docker, Helm chart, GitOps manifests |
-| 2026-10-22 | 4h  | Refactor to shared cluster + Phase 7 (NetworkPolicies + PSS + RBAC) + Phase 8 (docs + runbooks) |
+| Date | Hours | Work |
+|------|-------|------|
+| 2026-10-20 | 2h 00m | Phase 0 — repo scaffolding, ADR-001, app stubs, Makefile skeleton |
+| 2026-10-21 | 7h 30m | Phases 1–4 — Terraform modules + env compositions, Dockerfiles + compose smoke test (caught redis async_timeout bug), Helm chart with lint-clean renders, GitOps manifests (root apps + env apps + platform addons) |
+| 2026-10-22 | 5h 30m | Shared-cluster refactor (ADR-002) + Phase 7 (NetworkPolicies + PSS + RBAC) + Phase 8 (docs + 2 runbooks) + Phase 9.1 (GitHub Actions CI with Cosign + Trivy) |
 
-Running total: **14h** out of 20–30h budget.
+Running total: **15h 00m** of the 20–30h budget.
+Projected final: ~22h once Azure apply + Phases 5/6 + Task 2 remainder are done.

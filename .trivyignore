@@ -1,0 +1,9 @@
+# Trivy CVE waivers. Format:
+#
+#   CVE-ID  # expires: YYYY-MM-DD  owner: @handle  reason: short text
+#
+# Lines without the expires annotation are frowned upon.
+# When extending a waiver, bump the date AND re-document the reason.
+# When removing a waiver, delete the line entirely.
+#
+# No active waivers at this time.
