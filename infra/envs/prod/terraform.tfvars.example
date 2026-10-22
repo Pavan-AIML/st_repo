@@ -1,7 +1,7 @@
 # Copy this file to terraform.tfvars (gitignored) and fill in real values.
 
 subscription_id = "3e4b93a6-966a-4d17-af62-540ffd96a13c"
-location        = "germanywestcentral"
+location        = "westeurope"
 
 # For prod, keep this tight — only an on-call Entra group should get cluster-admin.
 aks_admin_group_object_ids = []

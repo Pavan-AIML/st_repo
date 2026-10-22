@@ -1,4 +1,4 @@
-# ShopLite — Platform Assessment
+!# ShopLite — Platform Assessment
 
 **Candidate:** Pavan Kumar
 **Reviewer:** Mario Turic, Softtribe

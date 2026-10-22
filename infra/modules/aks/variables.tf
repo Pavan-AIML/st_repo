@@ -48,7 +48,7 @@ variable "admin_group_object_ids" {
 variable "system_node_vm_size" {
   description = "VM size for the system node pool."
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2s_v3"
 }
 
 variable "system_node_count" {
@@ -64,7 +64,7 @@ variable "system_node_count" {
 variable "user_node_vm_size" {
   description = "VM size for the user node pool where app pods run."
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2s_v3"
 }
 
 variable "user_node_min_count" {

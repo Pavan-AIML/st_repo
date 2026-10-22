@@ -74,6 +74,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     network_plugin      = "azure"
     network_plugin_mode = "overlay"
     network_policy      = "cilium"
+    network_data_plane  = "cilium"
     load_balancer_sku   = "standard"
     pod_cidr            = var.pod_cidr
     service_cidr        = var.service_cidr

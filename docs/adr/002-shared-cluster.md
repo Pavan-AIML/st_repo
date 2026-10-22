@@ -12,6 +12,11 @@ The task spec says:
 > rg-shoplite-staging, rg-shoplite-prod); a second cluster only with a written
 > justification."*
 
+**Region note:** Spec defaults to `germanywestcentral`. During apply we hit
+`AKSCapacityHeavyUsage` from Azure — the region refused new AKS clusters
+due to platform-wide capacity constraints. With Mario's approval we moved
+to `westeurope`. All resources, same code, same cost.
+
 ## Decision
 
 - One AKS cluster, one ACR, one VNet, one Postgres private DNS zone live
