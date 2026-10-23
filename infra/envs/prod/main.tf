@@ -46,6 +46,8 @@ data "terraform_remote_state" "shared" {
   }
 }
 
+data "azurerm_client_config" "current" {}
+
 locals {
   env  = "prod"
   name = "shoplite-${local.env}"
@@ -93,6 +95,23 @@ module "identity" {
       namespace       = "shoplite-${local.env}"
       service_account = "shoplite"
     }
+  }
+
+  tags = local.tags
+}
+
+module "key_vault" {
+  source = "../../modules/key_vault"
+
+  name                  = local.name
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.env.name
+  tenant_id             = data.azurerm_client_config.current.tenant_id
+  deployer_object_id    = data.azurerm_client_config.current.object_id
+  workload_principal_id = module.identity.workload_identity_principal_ids["shoplite"]
+
+  secrets = {
+    "database-url" = module.database.postgres_connection_string
   }
 
   tags = local.tags

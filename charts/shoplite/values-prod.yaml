@@ -44,9 +44,12 @@ worker:
     minAvailable: 1
 
 externalSecrets:
-  enabled: false
+  enabled: true
   secretStoreName: azure-keyvault
   secretName: shoplite-secrets
+  refreshInterval: 1h
+  # From `terraform output key_vault_uri` in envs/prod/.
+  vaultUrl: "https://kv-shoplite-prod-7wy5.vault.azure.net/"
 
 networkPolicies:
   enabled: true

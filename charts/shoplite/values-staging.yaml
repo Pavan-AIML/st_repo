@@ -32,11 +32,13 @@ worker:
     tag: "0.1.0"
   replicaCount: 1
 
-# ESO off until Phase 5 installs it. Flip to true then.
 externalSecrets:
-  enabled: false
+  enabled: true
   secretStoreName: azure-keyvault
   secretName: shoplite-secrets
+  refreshInterval: 1h
+  # From `terraform output key_vault_uri` in envs/staging/.
+  vaultUrl: "https://kv-shoplite-staging-3kz3.vault.azure.net/"
 
 networkPolicies:
   enabled: true

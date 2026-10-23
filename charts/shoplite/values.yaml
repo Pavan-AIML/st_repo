@@ -83,6 +83,7 @@ externalSecrets:
   secretStoreName: azure-keyvault
   secretName: shoplite-secrets
   refreshInterval: 1h
+  vaultUrl: ""   # REQUIRED per env when enabled=true
 
 # ---------------------------------------------------------------------------
 # NetworkPolicies — zero-trust networking at the pod level.
