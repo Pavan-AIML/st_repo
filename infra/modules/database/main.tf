@@ -20,9 +20,11 @@ terraform {
 # pods consume it from there via External Secrets Operator.
 # ---------------------------------------------------------------------------
 resource "random_password" "postgres_admin" {
-  length           = 32
-  special          = true
-  override_special = "!@#$%^&*()-_=+"
+  length  = 32
+  special = true
+  # Only URL-unreserved special chars. Avoids breaking DATABASE_URL
+  # parsing (which happens when the password contains & % ( ) + etc.).
+  override_special = "-_."
 }
 
 # ---------------------------------------------------------------------------

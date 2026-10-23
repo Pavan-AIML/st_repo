@@ -29,7 +29,7 @@ api:
 worker:
   image:
     repository: shoplite-worker
-    tag: "0.1.0"
+    tag: "0.1.1"
   replicaCount: 1
 
 externalSecrets:
@@ -39,6 +39,13 @@ externalSecrets:
   refreshInterval: 1h
   # From `terraform output key_vault_uri` in envs/staging/.
   vaultUrl: "https://kv-shoplite-staging-3kz3.vault.azure.net/"
+  tenantId: "9ef0183b-ac0d-4452-9c52-6c00aa861770"
+
+ingress:
+  enabled: true
+  # nip.io resolves <ip>.nip.io → <ip>. No DNS zone to buy.
+  host: "staging.57.174.146.129.nip.io"
+  clusterIssuer: letsencrypt-staging
 
 networkPolicies:
   enabled: true

@@ -38,7 +38,7 @@ api:
 worker:
   image:
     repository: shoplite-worker
-    tag: "0.1.0"
+    tag: "0.1.1"
   replicaCount: 2
   pdb:
     minAvailable: 1
@@ -50,6 +50,12 @@ externalSecrets:
   refreshInterval: 1h
   # From `terraform output key_vault_uri` in envs/prod/.
   vaultUrl: "https://kv-shoplite-prod-7wy5.vault.azure.net/"
+  tenantId: "9ef0183b-ac0d-4452-9c52-6c00aa861770"
+
+ingress:
+  enabled: true
+  host: "prod.57.174.146.129.nip.io"
+  clusterIssuer: letsencrypt-staging
 
 networkPolicies:
   enabled: true

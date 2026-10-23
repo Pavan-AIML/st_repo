@@ -1,0 +1,29 @@
+# Let's Encrypt staging issuer — hands out certs that aren't publicly
+# trusted but have no rate limits. Fine for the assessment (browser will
+# warn about untrusted cert; curl can bypass with -k). To use real certs,
+# switch the ACME server to https://acme-v02.api.letsencrypt.org/directory
+# and bump to the Production rate-limit tier.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-issuer
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+    path: gitops/platform/issuers
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

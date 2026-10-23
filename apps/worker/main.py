@@ -10,9 +10,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+# asyncpg only understands bare postgresql:// — strip the SQLAlchemy
+# dialect suffix if present (ESO ships the same DSN the api uses).
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://shoplite:shoplite@localhost:5432/shoplite"
-)
+).replace("postgresql+asyncpg://", "postgresql://", 1)
 QUEUE_KEY = "shoplite:jobs"
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")

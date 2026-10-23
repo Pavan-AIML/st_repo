@@ -84,6 +84,16 @@ externalSecrets:
   secretName: shoplite-secrets
   refreshInterval: 1h
   vaultUrl: ""   # REQUIRED per env when enabled=true
+  tenantId: ""   # REQUIRED per env when enabled=true
+
+# ---------------------------------------------------------------------------
+# Ingress — public HTTPS endpoint via ingress-nginx + Let's Encrypt staging.
+# host should be an FQDN resolvable to the ingress-nginx LB IP (nip.io works).
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: false
+  host: ""
+  clusterIssuer: letsencrypt-staging
 
 # ---------------------------------------------------------------------------
 # NetworkPolicies — zero-trust networking at the pod level.
