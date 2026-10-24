@@ -243,9 +243,12 @@ resource "helm_release" "argocd" {
         }
       }
       repoServer = {
+        # Memory bumped from 256Mi after repeated OOMKills: repo-server
+        # pulls kube-prometheus-stack, Loki, ingress-nginx, cert-manager
+        # etc. concurrently and the Helm renders exceed 256Mi.
         resources = {
-          requests = { cpu = "50m", memory = "128Mi" }
-          limits   = { cpu = "200m", memory = "256Mi" }
+          requests = { cpu = "50m", memory = "256Mi" }
+          limits   = { cpu = "200m", memory = "1Gi" }
         }
       }
     })
