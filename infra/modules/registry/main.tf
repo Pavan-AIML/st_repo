@@ -48,7 +48,7 @@ resource "azurerm_role_assignment" "kubelet_acr_pull" {
 # manually with `az acr login`, so leave the input null.
 # ---------------------------------------------------------------------------
 resource "azurerm_role_assignment" "github_actions_acr_push" {
-  count                = var.github_actions_principal_id == null ? 0 : 1
+  count                = var.github_actions_enabled ? 1 : 0
   scope                = azurerm_container_registry.this.id
   role_definition_name = "AcrPush"
   principal_id         = var.github_actions_principal_id

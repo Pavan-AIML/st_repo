@@ -157,13 +157,39 @@ module "aks" {
 module "registry" {
   source = "../../modules/registry"
 
-  name                       = local.name
-  location                   = var.location
-  resource_group_name        = azurerm_resource_group.shared.name
-  sku                        = "Basic"
-  kubelet_identity_object_id = module.aks.kubelet_identity_object_id
+  name                        = local.name
+  location                    = var.location
+  resource_group_name         = azurerm_resource_group.shared.name
+  sku                         = "Basic"
+  kubelet_identity_object_id  = module.aks.kubelet_identity_object_id
+  github_actions_enabled      = true
+  github_actions_principal_id = azurerm_user_assigned_identity.github_actions.principal_id
 
   tags = local.tags
+}
+
+# ---------------------------------------------------------------------------
+# GitHub Actions UAMI + federated credential.
+#
+# The CI pipeline uses OIDC to assume this identity — no stored secrets in
+# GitHub. Trust policy pins to the specific repo + main branch; PRs are
+# not federated (they only run read-only lint/test/scan, no push).
+# ---------------------------------------------------------------------------
+
+resource "azurerm_user_assigned_identity" "github_actions" {
+  name                = "id-gha-${local.name}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.shared.name
+  tags                = local.tags
+}
+
+resource "azurerm_federated_identity_credential" "github_actions_main" {
+  name                = "fed-gha-${local.name}-main"
+  resource_group_name = azurerm_resource_group.shared.name
+  parent_id           = azurerm_user_assigned_identity.github_actions.id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = "https://token.actions.githubusercontent.com"
+  subject             = "repo:Pavan-AIML/st_repo:ref:refs/heads/main"
 }
 
 # ---------------------------------------------------------------------------

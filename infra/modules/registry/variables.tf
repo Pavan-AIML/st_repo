@@ -25,9 +25,15 @@ variable "kubelet_identity_object_id" {
 }
 
 variable "github_actions_principal_id" {
-  description = "Optional. Entra principal ID for GitHub Actions OIDC — granted AcrPush. Null for Task 1."
+  description = "Optional. Entra principal ID for GitHub Actions OIDC — granted AcrPush. Pair with github_actions_enabled=true."
   type        = string
-  default     = null
+  default     = ""
+}
+
+variable "github_actions_enabled" {
+  description = "If true, create the AcrPush role assignment for github_actions_principal_id."
+  type        = bool
+  default     = false
 }
 
 variable "tags" {
