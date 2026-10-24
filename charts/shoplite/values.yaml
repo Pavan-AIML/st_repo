@@ -33,6 +33,13 @@ redis:
   url: "redis://redis-master.default.svc.cluster.local:6379"
 
 # ---------------------------------------------------------------------------
+# OpenTelemetry — set endpoint to Tempo's OTLP HTTP receiver to enable
+# trace export. Empty string = disabled (helm template still renders).
+# ---------------------------------------------------------------------------
+otel:
+  endpoint: "http://tempo.monitoring.svc.cluster.local:4318"
+
+# ---------------------------------------------------------------------------
 # api — HTTP service, HPA-scaled on CPU.
 # ---------------------------------------------------------------------------
 api:

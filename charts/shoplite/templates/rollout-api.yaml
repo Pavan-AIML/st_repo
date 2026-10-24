@@ -83,6 +83,10 @@ spec:
             # (bad-build demo for Argo Rollouts auto-rollback).
             - name: BAD_BUILD_ERROR_PCT
               value: {{ .Values.api.badBuildErrorPct | default 0 | quote }}
+            {{- if .Values.otel.endpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.otel.endpoint | quote }}
+            {{- end }}
           {{- if .Values.externalSecrets.enabled }}
           envFrom:
             - secretRef:

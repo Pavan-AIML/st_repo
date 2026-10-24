@@ -1,0 +1,26 @@
+{{- if and .Values.networkPolicies.enabled .Values.otel.endpoint }}
+# Allow api egress to Tempo in the monitoring namespace on the OTLP HTTP
+# port (4318). Without this, default-deny blocks trace export.
+# DNS egress (kube-dns) is already permitted via other allow policies.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-tempo
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 4318
+{{- end }}

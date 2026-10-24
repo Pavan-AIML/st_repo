@@ -7,6 +7,13 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     Counter,
@@ -18,6 +25,20 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 load_dotenv()
+
+# ---------------------------------------------------------------------------
+# OpenTelemetry — exports traces to Tempo over OTLP HTTP.
+# OTEL_EXPORTER_OTLP_ENDPOINT points at the Tempo OTLP receiver (set via env).
+# ---------------------------------------------------------------------------
+
+OTEL_ENDPOINT = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+if OTEL_ENDPOINT:
+    resource = Resource.create({"service.name": "shoplite-api"})
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=f"{OTEL_ENDPOINT}/v1/traces"))
+    )
+    trace.set_tracer_provider(provider)
 
 # ---------------------------------------------------------------------------
 # Logging — structured JSON
@@ -102,6 +123,12 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 
 app = FastAPI(title="ShopLite API", lifespan=lifespan)
+
+# Instrument FastAPI + SQLAlchemy — every request gets a span, every DB
+# query gets a child span. Both export to Tempo when OTEL_ENDPOINT is set.
+if OTEL_ENDPOINT:
+    FastAPIInstrumentor.instrument_app(app)
+    SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
 
 # ---------------------------------------------------------------------------
 # Prometheus middleware
