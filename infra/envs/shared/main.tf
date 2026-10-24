@@ -189,7 +189,9 @@ resource "azurerm_federated_identity_credential" "github_actions_main" {
   parent_id           = azurerm_user_assigned_identity.github_actions.id
   audience            = ["api://AzureADTokenExchange"]
   issuer              = "https://token.actions.githubusercontent.com"
-  subject             = "repo:Pavan-AIML/st_repo:ref:refs/heads/main"
+  # GitHub Actions now includes immutable owner + repo IDs in the subject
+  # claim. Format: repo:<owner>@<owner-id>/<repo>@<repo-id>:ref:...
+  subject             = "repo:Pavan-AIML@178518671/st_repo@1420730044:ref:refs/heads/main"
 }
 
 # ---------------------------------------------------------------------------
