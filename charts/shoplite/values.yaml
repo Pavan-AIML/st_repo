@@ -55,6 +55,11 @@ api:
     targetCPUUtilizationPercentage: 70
   pdb:
     minAvailable: 1
+  # Progressive delivery — flip to true to use Argo Rollouts canary.
+  rollout:
+    enabled: false
+  # Set > 0 to force the api to return that % of HTTP 500 (bad-build demo).
+  badBuildErrorPct: 0
 
 # ---------------------------------------------------------------------------
 # worker — background consumer, no HTTP port.

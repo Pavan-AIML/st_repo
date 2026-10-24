@@ -1,0 +1,19 @@
+{{- if .Values.monitoring.enabled }}
+# ServiceMonitor — tells Prometheus to scrape our api's /metrics.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+{{- end }}

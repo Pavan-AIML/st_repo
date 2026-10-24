@@ -1,0 +1,26 @@
+{{- if and .Values.networkPolicies.enabled .Values.monitoring.enabled }}
+# Allow kube-prometheus-stack Prometheus (in monitoring ns) to scrape api
+# /metrics. Required because the default-deny policy would otherwise block
+# all ingress to api pods except from ingress-nginx.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape-api
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: {{ .Values.api.containerPort }}
+{{- end }}

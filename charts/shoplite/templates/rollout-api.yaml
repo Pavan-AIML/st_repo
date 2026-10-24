@@ -1,0 +1,150 @@
+{{- if .Values.api.rollout.enabled }}
+# Rollout replaces Deployment when api.rollout.enabled=true. Canary steps
+# shift traffic 10% → pause → 50% → pause → 100%, with Prometheus-based
+# analysis at each pause. If the AnalysisRun fails (error rate > 1%),
+# the rollout aborts and reverts to the previous ReplicaSet.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  {{- if not .Values.api.autoscaling.enabled }}
+  replicas: {{ .Values.api.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  strategy:
+    canary:
+      canaryService: {{ include "shoplite.fullname" . }}-api-canary
+      stableService: {{ include "shoplite.fullname" . }}-api
+      trafficRouting:
+        nginx:
+          stableIngress: {{ include "shoplite.fullname" . }}-api
+      steps:
+        - setWeight: 10
+        - pause: { duration: 60 }
+        - analysis:
+            templates:
+              - templateName: {{ include "shoplite.fullname" . }}-api-error-rate
+            args:
+              - name: service-name
+                value: {{ include "shoplite.fullname" . }}-api-canary
+        - setWeight: 50
+        - pause: { duration: 60 }
+        - analysis:
+            templates:
+              - templateName: {{ include "shoplite.fullname" . }}-api-error-rate
+            args:
+              - name: service-name
+                value: {{ include "shoplite.fullname" . }}-api-canary
+        - setWeight: 100
+  template:
+    metadata:
+      labels:
+        {{- include "shoplite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+        azure.workload.identity/use: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.api.containerPort }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "shoplite.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: "{{ .Values.image.registry }}/{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.containerPort }}
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: REDIS_URL
+              value: {{ .Values.redis.url | quote }}
+            # Set to a value > 0 to make the api return that % of 5xx responses
+            # (bad-build demo for Argo Rollouts auto-rollback).
+            - name: BAD_BUILD_ERROR_PCT
+              value: {{ .Values.api.badBuildErrorPct | default 0 | quote }}
+          {{- if .Values.externalSecrets.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.externalSecrets.secretName }}
+          {{- end }}
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+# Second Service — stays on the "canary" (new) ReplicaSet during a rollout.
+# The primary Service (service-api.yaml) stays on "stable" (old).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api-canary
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    {{- include "shoplite.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+---
+# AnalysisTemplate — queries Prometheus for the api's 5xx rate. If the
+# rate during the measurement window exceeds 1%, the AnalysisRun fails
+# and Argo Rollouts aborts + rolls back.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api-error-rate
+spec:
+  args:
+    - name: service-name
+  metrics:
+    - name: error-rate
+      interval: 30s
+      count: 3
+      successCondition: result[0] < 0.01
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(http_requests_total{job="shoplite-api",status=~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{job="shoplite-api"}[1m]))
+{{- end }}

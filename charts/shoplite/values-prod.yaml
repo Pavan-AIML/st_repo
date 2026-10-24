@@ -20,6 +20,8 @@ api:
     repository: shoplite-api
     tag: "0.1.0"
   replicaCount: 3
+  rollout:
+    enabled: true
   resources:
     requests:
       cpu: 150m
@@ -56,6 +58,9 @@ ingress:
   enabled: true
   host: "prod.57.174.146.129.nip.io"
   clusterIssuer: letsencrypt-staging
+
+monitoring:
+  enabled: true
 
 networkPolicies:
   enabled: true

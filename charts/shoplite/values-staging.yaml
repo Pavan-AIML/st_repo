@@ -47,6 +47,9 @@ ingress:
   host: "staging.57.174.146.129.nip.io"
   clusterIssuer: letsencrypt-staging
 
+monitoring:
+  enabled: true
+
 networkPolicies:
   enabled: true
   ingressNamespace: ingress-nginx

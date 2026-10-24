@@ -1,0 +1,82 @@
+{{- if .Values.monitoring.enabled }}
+# SLO burn-rate alerts for api.
+#
+# SLO 1 — Availability: 99.5% of HTTP requests succeed (non-5xx) over 30d.
+#         Error budget: 0.5% of requests.
+# SLO 2 — Latency: 95% of requests complete under 300ms over 30d.
+#
+# Multi-window burn-rate pattern per the SRE Workbook:
+#   - 5m/1h "fast burn"  → page if we'll exhaust the 30d budget in <2d
+#   - 1h/6h "slow burn"  → page if we'll exhaust the 30d budget in <14d
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "shoplite.fullname" . }}-api-slo
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: shoplite-api.slo-availability
+      interval: 30s
+      rules:
+        # 5xx / total over short + long windows, used by the alerts below.
+        - record: shoplite_api:error_rate:5m
+          expr: |
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*"}[5m]))
+        - record: shoplite_api:error_rate:1h
+          expr: |
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*",status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*"}[1h]))
+        - record: shoplite_api:error_rate:6h
+          expr: |
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*",status=~"5.."}[6h]))
+            /
+            sum(rate(http_requests_total{job=~".*shoplite.*api.*"}[6h]))
+        # Fast burn — budget gone in <2 days.
+        - alert: ShopliteApiErrorBudgetFastBurn
+          expr: |
+            shoplite_api:error_rate:5m > (14.4 * 0.005)
+            and
+            shoplite_api:error_rate:1h > (14.4 * 0.005)
+          for: 2m
+          labels:
+            severity: critical
+            slo: availability
+          annotations:
+            summary: "api is burning the 30d error budget >14x faster than allowed"
+            description: "5m err rate {{ printf "%s" "{{ $value | humanizePercentage }}" }} > fast-burn threshold 7.2%. 30d budget will be exhausted in <2 days."
+        # Slow burn — budget gone in <14 days.
+        - alert: ShopliteApiErrorBudgetSlowBurn
+          expr: |
+            shoplite_api:error_rate:1h > (6 * 0.005)
+            and
+            shoplite_api:error_rate:6h > (6 * 0.005)
+          for: 15m
+          labels:
+            severity: warning
+            slo: availability
+          annotations:
+            summary: "api is burning the 30d error budget >6x faster than allowed"
+            description: "1h err rate {{ printf "%s" "{{ $value | humanizePercentage }}" }} > slow-burn threshold 3%. 30d budget will be exhausted in <14 days."
+    - name: shoplite-api.slo-latency
+      interval: 30s
+      rules:
+        - record: shoplite_api:p95_latency_seconds:5m
+          expr: |
+            histogram_quantile(0.95,
+              sum by (le) (rate(http_request_duration_seconds_bucket{job=~".*shoplite.*api.*"}[5m]))
+            )
+        - alert: ShopliteApiLatencyBudgetFastBurn
+          expr: shoplite_api:p95_latency_seconds:5m > 0.3
+          for: 5m
+          labels:
+            severity: critical
+            slo: latency
+          annotations:
+            summary: "api p95 latency > 300ms for 5m+"
+            description: "p95 is {{ printf "%s" "{{ $value | humanizeDuration }}" }} — 95%-under-300ms SLO being burned fast."
+{{- end }}

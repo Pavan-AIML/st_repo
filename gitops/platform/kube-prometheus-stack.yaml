@@ -1,0 +1,76 @@
+# kube-prometheus-stack — Prometheus + Alertmanager + Grafana + a bunch
+# of ServiceMonitors for the cluster. One install serves both envs.
+#
+# Dashboard JSON lives at gitops/platform/monitoring/dashboards/ and is
+# auto-imported via the kube-prometheus-stack grafana sidecar.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 65.5.0
+    helm:
+      releaseName: kube-prometheus-stack
+      values: |
+        fullnameOverride: kps
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            resources:
+              requests: { cpu: 200m, memory: 512Mi }
+              limits:   { cpu: 1,     memory: 1Gi }
+            # Pick up ServiceMonitors from ANY namespace, not just monitoring.
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests: { cpu: 50m, memory: 64Mi }
+              limits:   { cpu: 200m, memory: 128Mi }
+          config:
+            route:
+              receiver: 'default'
+              group_by: ['alertname', 'namespace']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              routes:
+                - matchers:
+                    - severity = "critical"
+                  receiver: 'critical'
+            receivers:
+              - name: 'default'
+              - name: 'critical'
+                # Stub — swap for a real Slack webhook URL to route critical alerts.
+                # webhook_configs:
+                #   - url: https://hooks.slack.com/services/XXX/YYY/ZZZ
+        grafana:
+          adminPassword: shoplite-admin   # demo-only; put in KV for real use
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits:   { cpu: 300m, memory: 384Mi }
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+          persistence:
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
