@@ -19,6 +19,12 @@ metadata:
     policies.kyverno.io/title: Verify shoplite images are Cosign-signed
     policies.kyverno.io/category: Supply Chain Security
     policies.kyverno.io/severity: high
+    # Disable autogen so Kyverno only validates on Pod admission, not on
+    # every Deployment/Rollout UPDATE. Autogen was blocking legitimate
+    # controller updates (including finalizer removal and Argo CD prune)
+    # whenever an older spec still had a non-digest image. Security is not
+    # weakened: new Pods still have to pass verifyImages before they run.
+    pod-policies.kyverno.io/autogen-controllers: none
 spec:
   validationFailureAction: Enforce
   background: false
