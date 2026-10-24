@@ -23,6 +23,7 @@ load_dotenv()
 # Logging — structured JSON
 # ---------------------------------------------------------------------------
 
+
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         return json.dumps(
@@ -75,6 +76,7 @@ AsyncSession = async_sessionmaker(engine, expire_on_commit=False)
 # Lifespan — create table on startup, dispose engine on shutdown
 # ---------------------------------------------------------------------------
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -105,15 +107,14 @@ app = FastAPI(title="ShopLite API", lifespan=lifespan)
 # Prometheus middleware
 # ---------------------------------------------------------------------------
 
+
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
     start = time.perf_counter()
     response = await call_next(request)
     latency = time.perf_counter() - start
     path = request.url.path
-    REQUEST_COUNT.labels(
-        method=request.method, path=path, status=response.status_code
-    ).inc()
+    REQUEST_COUNT.labels(method=request.method, path=path, status=response.status_code).inc()
     REQUEST_LATENCY.labels(method=request.method, path=path).observe(latency)
     return response
 
@@ -121,6 +122,7 @@ async def prometheus_middleware(request: Request, call_next):
 # ---------------------------------------------------------------------------
 # Schemas
 # ---------------------------------------------------------------------------
+
 
 class ProductIn(BaseModel):
     name: str
@@ -138,6 +140,7 @@ class ProductOut(BaseModel):
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
 
 @app.get("/healthz", tags=["ops"])
 async def healthz():
@@ -163,9 +166,7 @@ async def metrics():
 @app.get("/products", response_model=list[ProductOut], tags=["products"])
 async def list_products():
     async with AsyncSession() as session:
-        result = await session.execute(
-            text("SELECT id, name, price FROM products ORDER BY id")
-        )
+        result = await session.execute(text("SELECT id, name, price FROM products ORDER BY id"))
         rows = result.mappings().all()
     logger.info({"event": "list_products", "count": len(rows)})
     return [ProductOut(id=r["id"], name=r["name"], price=float(r["price"])) for r in rows]

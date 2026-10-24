@@ -39,20 +39,10 @@ async def handle_job(pg: asyncpg.Connection, raw: bytes) -> None:
     product_id = int(job["product_id"])
 
     if action == "log_product":
-        await pg.execute(
-            "INSERT INTO job_results (product_id) VALUES ($1)", product_id
-        )
-        log.info(
-            json.dumps(
-                {"event": "job_processed", "action": action, "product_id": product_id}
-            )
-        )
+        await pg.execute("INSERT INTO job_results (product_id) VALUES ($1)", product_id)
+        log.info(json.dumps({"event": "job_processed", "action": action, "product_id": product_id}))
     else:
-        log.info(
-            json.dumps(
-                {"event": "job_skipped", "reason": "unknown_action", "action": action}
-            )
-        )
+        log.info(json.dumps({"event": "job_skipped", "reason": "unknown_action", "action": action}))
 
 
 async def main() -> None:
@@ -73,20 +63,14 @@ async def main() -> None:
                     try:
                         await handle_job(pg, raw)
                     except Exception as exc:
-                        log.error(
-                            json.dumps({"event": "job_error", "error": str(exc)})
-                        )
+                        log.error(json.dumps({"event": "job_error", "error": str(exc)}))
 
         except (
             aioredis.ConnectionError,
             aioredis.TimeoutError,
             OSError,
         ) as exc:
-            log.error(
-                json.dumps(
-                    {"event": "redis_error", "error": str(exc), "retry_in_s": 5}
-                )
-            )
+            log.error(json.dumps({"event": "redis_error", "error": str(exc), "retry_in_s": 5}))
             await asyncio.sleep(5)
 
 
