@@ -8,8 +8,16 @@ metadata:
     app.kubernetes.io/component: api
 spec:
   scaleTargetRef:
+    {{- if .Values.api.rollout.enabled }}
+    # When Argo Rollouts is in play, HPA must target the Rollout CR so it
+    # scales the active ReplicaSet (stable or canary). Pointing at a
+    # Deployment that no longer exists leaves the Rollout at 1 replica.
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
+    {{- end }}
     name: {{ include "shoplite.fullname" . }}-api
   minReplicas: {{ .Values.api.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.api.autoscaling.maxReplicas }}
