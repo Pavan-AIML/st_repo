@@ -18,7 +18,8 @@ redis:
 api:
   image:
     repository: shoplite-api
-    tag: "0.1.0"
+    tag: "af3f30d362f5"
+    digest: "sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6"
   replicaCount: 3
   rollout:
     enabled: true
@@ -40,7 +41,8 @@ api:
 worker:
   image:
     repository: shoplite-worker
-    tag: "0.1.1"
+    tag: "af3f30d362f5"
+    digest: "sha256:85197c5354734a5f431050d05dfb8e993843c0358b13dff9f75a629ee38b4b32"
   replicaCount: 2
   pdb:
     minAvailable: 1

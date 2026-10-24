@@ -47,3 +47,19 @@ exactly this name (from infra/envs/<env>/main.tf: workloads.shoplite.service_acc
 {{- define "shoplite.serviceAccountName" -}}
 {{- default "shoplite" .Values.serviceAccount.name -}}
 {{- end }}
+
+{{/*
+Image reference. Kyverno verifyImages requires digest-pinned images
+(repository@sha256:...). If .digest is set, use it; else fall back to :tag
+(convenient for local dev where Kyverno is off).
+Call: {{ include "shoplite.image" (dict "registry" .Values.image.registry "img" .Values.api.image) }}
+*/}}
+{{- define "shoplite.image" -}}
+{{- $registry := .registry -}}
+{{- $img := .img -}}
+{{- if $img.digest -}}
+{{ $registry }}/{{ $img.repository }}@{{ $img.digest }}
+{{- else -}}
+{{ $registry }}/{{ $img.repository }}:{{ $img.tag }}
+{{- end -}}
+{{- end }}

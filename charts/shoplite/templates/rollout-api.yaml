@@ -64,7 +64,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: api
-          image: "{{ .Values.image.registry }}/{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          image: {{ include "shoplite.image" (dict "registry" .Values.image.registry "img" .Values.api.image) | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

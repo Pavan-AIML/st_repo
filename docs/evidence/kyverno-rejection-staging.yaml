@@ -1,0 +1,604 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-staging"},"name":"shoplite-staging","namespace":"argocd"},"spec":{"destination":{"namespace":"shoplite-staging","server":"https://kubernetes.default.svc"},"project":"default","source":{"helm":{"parameters":[{"name":"api.image.tag","value":"0.1.0"},{"name":"worker.image.tag","value":"0.1.0"}],"releaseName":"shoplite","valueFiles":["values-staging.yaml"]},"path":"charts/shoplite","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"managedNamespaceMetadata":{"labels":{"pod-security.kubernetes.io/audit":"restricted","pod-security.kubernetes.io/enforce":"restricted","pod-security.kubernetes.io/warn":"restricted"}},"retry":{"backoff":{"duration":"10s","factor":2,"maxDuration":"2m"},"limit":3},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+  creationTimestamp: "2026-10-23T03:00:53Z"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  generation: 3589
+  labels:
+    argocd.argoproj.io/instance: root-staging
+  name: shoplite-staging
+  namespace: argocd
+  resourceVersion: "1166351"
+  uid: c5d8d952-06ce-4090-a740-a257a7d97814
+spec:
+  destination:
+    namespace: shoplite-staging
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+  - group: apps
+    jsonPointers:
+    - /status
+    kind: Deployment
+    managedFieldsManagers:
+    - kube-controller-manager
+  project: default
+  source:
+    helm:
+      parameters:
+      - name: api.image.tag
+        value: 0.1.0
+      - name: worker.image.tag
+        value: 0.1.0
+      releaseName: shoplite
+      valueFiles:
+      - values-staging.yaml
+    path: charts/shoplite
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/warn: restricted
+    retry:
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
+      limit: 3
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
+status:
+  conditions:
+  - lastTransitionTime: "2026-10-24T21:16:52Z"
+    message: "Failed sync attempt to af3f30d362f565f8baf1b0da8cc424e618666e6c: one
+      or more objects failed to apply, reason: admission webhook \"validate.kyverno.svc-fail\"
+      denied the request: \n\nresource Deployment/shoplite-staging/shoplite-shoplite-api
+      was blocked due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+      missing digest for crshoplite.azurecr.io/shoplite-api:0.1.0,admission webhook
+      \"validate.kyverno.svc-fail\" denied the request: \n\nresource Deployment/shoplite-staging/shoplite-shoplite-worker
+      was blocked due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+      missing digest for crshoplite.azurecr.io/shoplite-worker:0.1.0 (retried 3 times)."
+    type: SyncError
+  controllerNamespace: argocd
+  health:
+    status: Progressing
+  history:
+  - deployStartedAt: "2026-10-23T03:00:55Z"
+    deployedAt: "2026-10-23T03:01:00Z"
+    id: 0
+    initiatedBy:
+      automated: true
+    revision: 38f1a9229438628942521a259ef26d2ae5466804
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  - deployStartedAt: "2026-10-23T21:14:27Z"
+    deployedAt: "2026-10-23T21:14:31Z"
+    id: 1
+    initiatedBy: {}
+    revision: 4c8ae9519a9b9e9fa928d2399cac762dd11bb7d1
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  - deployStartedAt: "2026-10-24T04:13:39Z"
+    deployedAt: "2026-10-24T04:13:47Z"
+    id: 2
+    initiatedBy:
+      automated: true
+    revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  - deployStartedAt: "2026-10-24T05:01:27Z"
+    deployedAt: "2026-10-24T05:01:33Z"
+    id: 3
+    initiatedBy:
+      automated: true
+    revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  - deployStartedAt: "2026-10-24T05:37:31Z"
+    deployedAt: "2026-10-24T05:37:36Z"
+    id: 4
+    initiatedBy:
+      automated: true
+    revision: e72e21582b72392c4719631ff5a74b2d886f211a
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  - deployStartedAt: "2026-10-24T05:43:42Z"
+    deployedAt: "2026-10-24T05:43:49Z"
+    id: 5
+    initiatedBy:
+      automated: true
+    revision: cf59cbdda23773595f44d1bc3833cfe12b1fd465
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+  operationState:
+    finishedAt: "2026-10-24T21:16:52Z"
+    message: "one or more objects failed to apply, reason: admission webhook \"validate.kyverno.svc-fail\"
+      denied the request: \n\nresource Deployment/shoplite-staging/shoplite-shoplite-api
+      was blocked due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+      missing digest for crshoplite.azurecr.io/shoplite-api:0.1.0,admission webhook
+      \"validate.kyverno.svc-fail\" denied the request: \n\nresource Deployment/shoplite-staging/shoplite-shoplite-worker
+      was blocked due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+      missing digest for crshoplite.azurecr.io/shoplite-worker:0.1.0 (retried 3 times)."
+    operation:
+      initiatedBy:
+        automated: true
+      retry:
+        backoff:
+          duration: 10s
+          factor: 2
+          maxDuration: 2m
+        limit: 3
+      sync:
+        prune: true
+        revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+    phase: Failed
+    retryCount: 3
+    startedAt: "2026-10-24T21:14:03Z"
+    syncResult:
+      managedNamespaceMetadata:
+        labels:
+          pod-security.kubernetes.io/audit: restricted
+          pod-security.kubernetes.io/enforce: restricted
+          pod-security.kubernetes.io/warn: restricted
+      resources:
+      - group: ""
+        hookPhase: Succeeded
+        kind: Namespace
+        message: namespace/shoplite-staging serverside-applied
+        name: shoplite-staging
+        namespace: ""
+        status: Synced
+        syncPhase: PreSync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-egress-tempo serverside-applied
+        name: allow-egress-tempo
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-ingress-to-api serverside-applied
+        name: allow-ingress-to-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-worker-to-redis serverside-applied
+        name: allow-worker-to-redis
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-worker-to-postgres serverside-applied
+        name: allow-worker-to-postgres
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/default-deny serverside-applied
+        name: default-deny
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-api-to-postgres serverside-applied
+        name: allow-api-to-postgres
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-dns-egress serverside-applied
+        name: allow-dns-egress
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: NetworkPolicy
+        message: networkpolicy.networking.k8s.io/allow-prometheus-scrape-api serverside-applied
+        name: allow-prometheus-scrape-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: policy
+        hookPhase: Running
+        kind: PodDisruptionBudget
+        message: poddisruptionbudget.policy/shoplite-shoplite-api serverside-applied
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: ""
+        hookPhase: Running
+        kind: ServiceAccount
+        message: serviceaccount/shoplite serverside-applied
+        name: shoplite
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: rbac.authorization.k8s.io
+        hookPhase: Running
+        kind: Role
+        message: role.rbac.authorization.k8s.io/developer-readonly reconciled. role.rbac.authorization.k8s.io/developer-readonly
+          serverside-applied
+        name: developer-readonly
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: ""
+        hookPhase: Running
+        kind: Service
+        message: service/shoplite-shoplite-api serverside-applied
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: apps
+        hookPhase: Failed
+        kind: Deployment
+        message: "admission webhook \"validate.kyverno.svc-fail\" denied the request:
+          \n\nresource Deployment/shoplite-staging/shoplite-shoplite-api was blocked
+          due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+          missing digest for crshoplite.azurecr.io/shoplite-api:0.1.0"
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: SyncFailed
+        syncPhase: Sync
+        version: v1
+      - group: apps
+        hookPhase: Failed
+        kind: Deployment
+        message: "admission webhook \"validate.kyverno.svc-fail\" denied the request:
+          \n\nresource Deployment/shoplite-staging/shoplite-shoplite-worker was blocked
+          due to the following policies \n\nverify-shoplite-images:\n  autogen-verify-signature:
+          missing digest for crshoplite.azurecr.io/shoplite-worker:0.1.0"
+        name: shoplite-shoplite-worker
+        namespace: shoplite-staging
+        status: SyncFailed
+        syncPhase: Sync
+        version: v1
+      - group: autoscaling
+        hookPhase: Running
+        kind: HorizontalPodAutoscaler
+        message: horizontalpodautoscaler.autoscaling/shoplite-shoplite-api serverside-applied
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v2
+      - group: networking.k8s.io
+        hookPhase: Running
+        kind: Ingress
+        message: ingress.networking.k8s.io/shoplite-shoplite-api serverside-applied
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: external-secrets.io
+        hookPhase: Running
+        kind: SecretStore
+        message: secretstore.external-secrets.io/azure-keyvault serverside-applied
+        name: azure-keyvault
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1beta1
+      - group: external-secrets.io
+        hookPhase: Running
+        kind: ExternalSecret
+        message: externalsecret.external-secrets.io/shoplite-secrets serverside-applied
+        name: shoplite-secrets
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1beta1
+      - group: monitoring.coreos.com
+        hookPhase: Running
+        kind: ServiceMonitor
+        message: servicemonitor.monitoring.coreos.com/shoplite-shoplite-api serverside-applied
+        name: shoplite-shoplite-api
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: monitoring.coreos.com
+        hookPhase: Running
+        kind: PrometheusRule
+        message: prometheusrule.monitoring.coreos.com/shoplite-shoplite-api-slo serverside-applied
+        name: shoplite-shoplite-api-slo
+        namespace: shoplite-staging
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-staging.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+  reconciledAt: "2026-10-24T21:44:22Z"
+  resources:
+  - health:
+      status: Healthy
+    kind: Service
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - kind: ServiceAccount
+    name: shoplite
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: apps
+    health:
+      status: Healthy
+    kind: Deployment
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: OutOfSync
+    version: v1
+  - group: apps
+    health:
+      message: 'Waiting for rollout to finish: 0 of 1 updated replicas are available...'
+      status: Progressing
+    kind: Deployment
+    name: shoplite-shoplite-worker
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: autoscaling
+    health:
+      message: recommended size matches current size
+      status: Healthy
+    kind: HorizontalPodAutoscaler
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v2
+  - group: external-secrets.io
+    health:
+      message: Secret was synced
+      status: Healthy
+    kind: ExternalSecret
+    name: shoplite-secrets
+    namespace: shoplite-staging
+    status: OutOfSync
+    version: v1beta1
+  - group: external-secrets.io
+    health:
+      message: store validated
+      status: Healthy
+    kind: SecretStore
+    name: azure-keyvault
+    namespace: shoplite-staging
+    status: Synced
+    version: v1beta1
+  - group: monitoring.coreos.com
+    kind: PrometheusRule
+    name: shoplite-shoplite-api-slo
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: monitoring.coreos.com
+    kind: ServiceMonitor
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    health:
+      status: Healthy
+    kind: Ingress
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-api-to-postgres
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-dns-egress
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-egress-tempo
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-ingress-to-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-prometheus-scrape-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-worker-to-postgres
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: allow-worker-to-redis
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: default-deny
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: policy
+    kind: PodDisruptionBudget
+    name: shoplite-shoplite-api
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  - group: rbac.authorization.k8s.io
+    kind: Role
+    name: developer-readonly
+    namespace: shoplite-staging
+    status: Synced
+    version: v1
+  sourceType: Helm
+  summary:
+    externalURLs:
+    - https://staging.57.174.146.129.nip.io/
+    images:
+    - crshoplite.azurecr.io/shoplite-api:0.1.0
+    - crshoplite.azurecr.io/shoplite-worker:0.1.0
+  sync:
+    comparedTo:
+      destination:
+        namespace: shoplite-staging
+        server: https://kubernetes.default.svc
+      ignoreDifferences:
+      - group: apps
+        jsonPointers:
+        - /status
+        kind: Deployment
+        managedFieldsManagers:
+        - kube-controller-manager
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-staging.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+    status: OutOfSync

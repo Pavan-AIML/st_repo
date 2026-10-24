@@ -46,6 +46,10 @@ api:
   image:
     repository: shoplite-api
     tag: "0.1.0"
+    # Optional digest. When set, Kyverno verifyImages accepts the ref
+    # (repository@sha256:...). Overridden per env with the signed digest
+    # produced by CI.
+    digest: ""
   replicaCount: 2
   containerPort: 8000
   resources:
@@ -75,6 +79,7 @@ worker:
   image:
     repository: shoplite-worker
     tag: "0.1.0"
+    digest: ""
   replicaCount: 1
   resources:
     requests:
