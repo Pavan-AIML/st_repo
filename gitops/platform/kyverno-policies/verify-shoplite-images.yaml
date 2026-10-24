@@ -1,0 +1,60 @@
+# ClusterPolicy — any Pod in shoplite-* namespaces pulling an image from
+# crshoplite.azurecr.io must be Cosign-signed with keyless Sigstore where
+# the signing identity matches our GitHub Actions workflow.
+#
+# What this blocks (the demo):
+#   - kubectl run x --image=crshoplite.azurecr.io/shoplite-api:tampered
+#     (any image without a valid Cosign signature from our workflow)
+#   - :latest tags — enforced by the second rule below
+#
+# What this allows:
+#   - Signed images from our ACR
+#   - Images from any other registry (platform addons, Redis, cert-manager, etc.)
+#     — the imageReferences glob is scoped to crshoplite.*
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-shoplite-images
+  annotations:
+    policies.kyverno.io/title: Verify shoplite images are Cosign-signed
+    policies.kyverno.io/category: Supply Chain Security
+    policies.kyverno.io/severity: high
+spec:
+  validationFailureAction: Enforce
+  background: false
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: verify-signature
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces:
+                - shoplite-staging
+                - shoplite-prod
+      verifyImages:
+        - imageReferences:
+            - "crshoplite.azurecr.io/shoplite-*"
+          attestors:
+            - entries:
+                - keyless:
+                    subject: "https://github.com/Pavan-AIML/st_repo/.github/workflows/ci.yml@refs/heads/main"
+                    issuer: "https://token.actions.githubusercontent.com"
+                    rekor:
+                      url: https://rekor.sigstore.dev
+    - name: block-latest-tag
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces:
+                - shoplite-staging
+                - shoplite-prod
+      validate:
+        message: >-
+          Using :latest or an untagged image is forbidden. Use a semver
+          or commit-SHA tag so deployments are reproducible.
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest | *:*"

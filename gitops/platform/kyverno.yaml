@@ -1,0 +1,67 @@
+# Kyverno — admission policy engine. Installed cluster-wide via Argo CD.
+# The ClusterPolicy that actually rejects unsigned images lives at
+# gitops/platform/kyverno-policies/verify-shoplite-images.yaml and is
+# synced by a separate Application (so we can update policies without
+# touching the Kyverno install).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: kyverno
+    repoURL: https://kyverno.github.io/kyverno
+    targetRevision: 3.3.4
+    helm:
+      releaseName: kyverno
+      values: |
+        admissionController:
+          replicas: 1
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 384Mi }
+        backgroundController:
+          replicas: 1
+        reportsController:
+          replicas: 1
+        cleanupController:
+          replicas: 1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Pavan-AIML/st_repo.git
+    targetRevision: main
+    path: gitops/platform/kyverno-policies
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
