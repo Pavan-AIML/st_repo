@@ -44,7 +44,8 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
+      # ServerSideApply disabled per Argo CD v2.12 vs K8s 1.33 diff bug.
+      # See gitops/staging/shoplite.yaml for details.
     retry:
       limit: 3
       backoff:

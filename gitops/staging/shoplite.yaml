@@ -51,7 +51,10 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
+      # ServerSideApply disabled because Argo CD v2.12.6's server-side diff
+      # engine chokes on K8s 1.33's new .status.terminatingReplicas field
+      # with "field not declared in schema". Client-side apply works fine.
+      # Re-enable once we move to Argo CD v2.13+.
     retry:
       limit: 3
       backoff:
