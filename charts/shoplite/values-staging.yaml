@@ -18,10 +18,16 @@ redis:
 api:
   image:
     repository: shoplite-api
-    tag: "af3f30d362f5"
-    # Signed by CI (Cosign keyless) at commit af3f30d.
-    digest: "sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6"
+    tag: "3deb8bc9b0c2"
+    # BAD BUILD for Phase 13 drill. Contains dormant failure-injection code
+    # at apps/api/main.py gated by BAD_BUILD_ERROR_PCT env var. Signed by CI
+    # (Cosign keyless) at commit 3deb8bc.
+    digest: "sha256:0c1019bf192c60133762448542c2bf6a5c6eee30abf3747eec30e753ff2a30b8"
   replicaCount: 2
+  # Phase 13 DRILL — inject HTTP 500 on 20% of /products requests so the
+  # Rollout canary AnalysisTemplate detects it (threshold: error rate > 1%)
+  # and aborts. Set back to 0 after the drill.
+  badBuildErrorPct: 20
   # Progressive delivery enabled in staging so the drill (Phase 13)
   # exercises the Rollout canary + AnalysisTemplate auto-rollback path.
   rollout:
