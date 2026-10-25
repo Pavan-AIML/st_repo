@@ -36,8 +36,12 @@ spec:
                 grpc:
                   endpoint: 0.0.0.0:4317
           resources:
-            requests: { cpu: 100m, memory: 256Mi }
-            limits:   { cpu: 500m, memory: 512Mi }
+            # 512Mi was repeatedly OOMKilled at startup even with the
+            # ingester idle. Tempo loads its WAL on start and needs ~700Mi
+            # headroom even at low traffic; 1Gi gives margin for small
+            # bursts. Already live-patched; this persists in Git.
+            requests: { cpu: 100m, memory: 512Mi }
+            limits:   { cpu: 500m, memory: 1Gi }
         persistence:
           enabled: false
         service:
