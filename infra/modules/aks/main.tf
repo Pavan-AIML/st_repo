@@ -60,6 +60,13 @@ resource "azurerm_kubernetes_cluster" "this" {
     orchestrator_version = var.kubernetes_version
     only_critical_addons_enabled = true
     tags                 = var.tags
+    # Match Azure's default — otherwise state carries these three fields
+    # from the API and plan shows a cosmetic "remove upgrade_settings" diff.
+    upgrade_settings {
+      max_surge                     = "10%"
+      drain_timeout_in_minutes      = 0
+      node_soak_duration_in_minutes = 0
+    }
   }
 
   # Use the identity we created above instead of a system-assigned one.
@@ -135,6 +142,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   max_count            = var.user_node_max_count
 
   tags = var.tags
+
+  # Match Azure's default — see comment on default_node_pool above.
+  upgrade_settings {
+    max_surge                     = "10%"
+    drain_timeout_in_minutes      = 0
+    node_soak_duration_in_minutes = 0
+  }
 
   lifecycle {
     ignore_changes = [orchestrator_version, node_count]

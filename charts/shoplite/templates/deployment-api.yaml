@@ -44,10 +44,16 @@ spec:
         fsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
+      # See rollout-api.yaml for rationale on preStop + grace period.
+      terminationGracePeriodSeconds: 30
       containers:
         - name: api
           image: {{ include "shoplite.image" (dict "registry" .Values.image.registry "img" .Values.api.image) | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
           ports:
             - name: http
               containerPort: {{ .Values.api.containerPort }}

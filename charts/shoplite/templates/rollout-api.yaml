@@ -62,10 +62,20 @@ spec:
         fsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
+      # Give the Service's endpoint controller time to drop the pod from
+      # endpoints before SIGTERM reaches the process. Without this, in-flight
+      # requests arrive at a shutting-down process and surface as 5xx / connection
+      # resets during rolling updates. 15s preStop + 30s grace covers the typical
+      # kube-proxy sync delay plus FastAPI's own graceful shutdown.
+      terminationGracePeriodSeconds: 30
       containers:
         - name: api
           image: {{ include "shoplite.image" (dict "registry" .Values.image.registry "img" .Values.api.image) | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
           ports:
             - name: http
               containerPort: {{ .Values.api.containerPort }}
@@ -146,9 +156,18 @@ spec:
       failureLimit: 1
       provider:
         prometheus:
-          address: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          # kube-prometheus-stack is installed with fullnameOverride=kps, so
+          # the Prometheus Service is kps-prometheus (not the default
+          # kube-prometheus-stack-prometheus). Overrideable via chart value.
+          address: {{ .Values.monitoring.prometheusUrl | default "http://kps-prometheus.monitoring.svc.cluster.local:9090" | quote }}
+          # Job label is the fully-qualified Service name assigned by the
+          # Prometheus operator (ServiceMonitor target). `or vector(0)` keeps
+          # the AnalysisRun from panicking on an empty result when there is
+          # no traffic in the window.
           query: |
-            sum(rate(http_requests_total{job="shoplite-api",status=~"5.."}[1m]))
-            /
-            sum(rate(http_requests_total{job="shoplite-api"}[1m]))
+            (
+              sum(rate(http_requests_total{job="{{ include "shoplite.fullname" . }}-api",status=~"5.."}[1m]))
+              /
+              sum(rate(http_requests_total{job="{{ include "shoplite.fullname" . }}-api"}[1m]))
+            ) or vector(0)
 {{- end }}

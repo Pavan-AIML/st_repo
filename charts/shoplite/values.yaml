@@ -40,6 +40,14 @@ otel:
   endpoint: "http://tempo.monitoring.svc.cluster.local:4318"
 
 # ---------------------------------------------------------------------------
+# Monitoring — Prometheus address used by the Argo Rollouts AnalysisTemplate.
+# Defaults to the kube-prometheus-stack service installed in `monitoring`
+# with fullnameOverride=kps. Override per env if your stack lives elsewhere.
+# ---------------------------------------------------------------------------
+monitoring:
+  prometheusUrl: "http://kps-prometheus.monitoring.svc.cluster.local:9090"
+
+# ---------------------------------------------------------------------------
 # api — HTTP service, HPA-scaled on CPU.
 # ---------------------------------------------------------------------------
 api:
