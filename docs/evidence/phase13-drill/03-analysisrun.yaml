@@ -1,0 +1,106 @@
+apiVersion: v1
+items:
+- apiVersion: argoproj.io/v1alpha1
+  kind: AnalysisRun
+  metadata:
+    annotations:
+      rollout.argoproj.io/revision: "2"
+    creationTimestamp: "2026-10-25T01:01:34Z"
+    generation: 6
+    labels:
+      app.kubernetes.io/component: api
+      app.kubernetes.io/instance: shoplite
+      app.kubernetes.io/name: shoplite
+      rollout-type: Step
+      rollouts-pod-template-hash: 85bb684555
+      step-index: "2"
+    name: shoplite-shoplite-api-85bb684555-2-2
+    namespace: shoplite-staging
+    ownerReferences:
+    - apiVersion: argoproj.io/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Rollout
+      name: shoplite-shoplite-api
+      uid: ade26fbc-4a14-4171-9779-e7f91c2e8942
+    resourceVersion: "1267031"
+    uid: da376ffc-6eb3-455b-953e-daf14ec3344c
+  spec:
+    args:
+    - name: service-name
+      value: shoplite-shoplite-api-canary
+    metrics:
+    - count: 3
+      failureLimit: 1
+      interval: 30s
+      name: error-rate
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          authentication:
+            oauth2: {}
+            sigv4: {}
+          query: |
+            sum(rate(http_requests_total{job="shoplite-api",status=~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{job="shoplite-api"}[1m]))
+      successCondition: result[0] < 0.01
+  status:
+    completedAt: "2026-10-25T01:02:14Z"
+    dryRunSummary: {}
+    message: 'Metric "error-rate" assessed Error due to consecutiveErrors (5) > consecutiveErrorLimit
+      (4): "Error Message: Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+      dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+      on 10.0.0.10:53: no such host"'
+    metricResults:
+    - consecutiveError: 5
+      error: 5
+      measurements:
+      - finishedAt: "2026-10-25T01:01:34Z"
+        message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+          dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+          on 10.0.0.10:53: no such host'
+        phase: Error
+        startedAt: "2026-10-25T01:01:34Z"
+      - finishedAt: "2026-10-25T01:01:44Z"
+        message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+          dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+          on 10.0.0.10:53: no such host'
+        phase: Error
+        startedAt: "2026-10-25T01:01:44Z"
+      - finishedAt: "2026-10-25T01:01:54Z"
+        message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+          dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+          on 10.0.0.10:53: no such host'
+        phase: Error
+        startedAt: "2026-10-25T01:01:54Z"
+      - finishedAt: "2026-10-25T01:02:04Z"
+        message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+          dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+          on 10.0.0.10:53: no such host'
+        phase: Error
+        startedAt: "2026-10-25T01:02:04Z"
+      - finishedAt: "2026-10-25T01:02:14Z"
+        message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+          dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+          on 10.0.0.10:53: no such host'
+        phase: Error
+        startedAt: "2026-10-25T01:02:14Z"
+      message: 'Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query":
+        dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
+        on 10.0.0.10:53: no such host'
+      metadata:
+        ResolvedPrometheusQuery: |
+          sum(rate(http_requests_total{job="shoplite-api",status=~"5.."}[1m]))
+          /
+          sum(rate(http_requests_total{job="shoplite-api"}[1m]))
+      name: error-rate
+      phase: Error
+    phase: Error
+    runSummary:
+      count: 1
+      error: 1
+    startedAt: "2026-10-25T01:01:34Z"
+kind: List
+metadata:
+  resourceVersion: ""

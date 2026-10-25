@@ -1,0 +1,40 @@
+T+15s: phase=Paused stable=76d5cb9c49 current=85bb684555 step=1 available=3/3
+     ar: No resources found in shoplite-staging namespace.
+T+30s: phase=Paused stable=76d5cb9c49 current=85bb684555 step=1 available=3/3
+     ar: No resources found in shoplite-staging namespace.
+T+45s: phase=Paused stable=76d5cb9c49 current=85bb684555 step=1 available=3/3
+     ar: No resources found in shoplite-staging namespace.
+T+60s: phase=Paused stable=76d5cb9c49 current=85bb684555 step=1 available=3/3
+     ar: No resources found in shoplite-staging namespace.
+T+75s: phase=Progressing stable=76d5cb9c49 current=85bb684555 step=2 available=3/3
+     ar: shoplite-shoplite-api-85bb684555-2-2   Running   7s
+T+90s: phase=Progressing stable=76d5cb9c49 current=85bb684555 step=2 available=3/3
+     ar: shoplite-shoplite-api-85bb684555-2-2   Running   24s
+T+105s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=3/3
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   41s
+T+120s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=3/3
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   57s
+T+135s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   74s
+T+150s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   90s
+T+165s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   106s
+T+180s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   2m3s
+T+195s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   2m19s
+T+210s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   2m36s
+T+225s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   2m52s
+T+240s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   3m10s
+T+255s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   3m26s
+T+270s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   3m43s
+T+285s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   3m59s
+T+300s: phase=Degraded stable=76d5cb9c49 current=85bb684555 step=0 available=2/2
+     ar: shoplite-shoplite-api-85bb684555-2-2   Error   4m16s

@@ -1,0 +1,214 @@
+[
+    {
+        "annotations": {
+            "description": "Pod argocd/argocd-application-controller-0 (application-controller) is in waiting state (reason: \"CrashLoopBackOff\").",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubepodcrashlooping",
+            "summary": "Pod is crash looping."
+        },
+        "endsAt": "2026-10-25T01:10:53.999Z",
+        "fingerprint": "1818fccd2b23f290",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-25T00:39:53.999Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:06:54.000Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=max_over_time%28kube_pod_container_status_waiting_reason%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%2Creason%3D%22CrashLoopBackOff%22%7D%5B5m%5D%29+%3E%3D+1&g0.tab=1",
+        "labels": {
+            "alertname": "KubePodCrashLooping",
+            "container": "application-controller",
+            "endpoint": "http",
+            "instance": "10.244.2.235:8080",
+            "job": "kube-state-metrics",
+            "namespace": "argocd",
+            "pod": "argocd-application-controller-0",
+            "prometheus": "monitoring/kps-prometheus",
+            "reason": "CrashLoopBackOff",
+            "service": "kube-prometheus-stack-kube-state-metrics",
+            "severity": "warning",
+            "uid": "3dc2d7ad-d3e1-4b59-bc78-db792928206c"
+        }
+    },
+    {
+        "annotations": {
+            "description": "KubeScheduler has disappeared from Prometheus target discovery.",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeschedulerdown",
+            "summary": "Target disappeared from Prometheus target discovery."
+        },
+        "endsAt": "2026-10-25T01:11:02.058Z",
+        "fingerprint": "324e000d5713e1d6",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-24T07:22:02.058Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:07:02.061Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-scheduler%22%7D+%3D%3D+1%29&g0.tab=1",
+        "labels": {
+            "alertname": "KubeSchedulerDown",
+            "prometheus": "monitoring/kps-prometheus",
+            "severity": "critical"
+        }
+    },
+    {
+        "annotations": {
+            "description": "KubeProxy has disappeared from Prometheus target discovery.",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeproxydown",
+            "summary": "Target disappeared from Prometheus target discovery."
+        },
+        "endsAt": "2026-10-25T01:10:59.295Z",
+        "fingerprint": "3657dbb943e1c6c7",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-24T07:21:59.295Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:06:59.297Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-proxy%22%7D+%3D%3D+1%29&g0.tab=1",
+        "labels": {
+            "alertname": "KubeProxyDown",
+            "prometheus": "monitoring/kps-prometheus",
+            "severity": "critical"
+        }
+    },
+    {
+        "annotations": {
+            "description": "Deployment shoplite-prod/shoplite-shoplite-api has not matched the expected number of replicas for longer than 15 minutes.",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubedeploymentreplicasmismatch",
+            "summary": "Deployment has not matched the expected number of replicas."
+        },
+        "endsAt": "2026-10-25T01:11:23.999Z",
+        "fingerprint": "a286ffcd00cb4249",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-24T07:22:23.999Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:07:24.003Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=%28kube_deployment_spec_replicas%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D+%3E+kube_deployment_status_replicas_available%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D%29+and+%28changes%28kube_deployment_status_replicas_updated%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D%5B10m%5D%29+%3D%3D+0%29&g0.tab=1",
+        "labels": {
+            "alertname": "KubeDeploymentReplicasMismatch",
+            "container": "kube-state-metrics",
+            "deployment": "shoplite-shoplite-api",
+            "endpoint": "http",
+            "instance": "10.244.2.235:8080",
+            "job": "kube-state-metrics",
+            "namespace": "shoplite-prod",
+            "pod": "kube-prometheus-stack-kube-state-metrics-f8ddc6f78-ntcx5",
+            "prometheus": "monitoring/kps-prometheus",
+            "service": "kube-prometheus-stack-kube-state-metrics",
+            "severity": "warning"
+        }
+    },
+    {
+        "annotations": {
+            "description": "This is an alert meant to ensure that the entire alerting pipeline is functional.\nThis alert is always firing, therefore it should always be firing in Alertmanager\nand always fire against a receiver. There are integrations with various notification\nmechanisms that send a notification when this alert is not firing. For example the\n\"DeadMansSnitch\" integration in PagerDuty.\n",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/general/watchdog",
+            "summary": "An alert that should always be firing to certify that Alertmanager is working properly."
+        },
+        "endsAt": "2026-10-25T01:11:00.196Z",
+        "fingerprint": "d68248beabce3f14",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-24T07:07:00.196Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:07:00.200Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=vector%281%29&g0.tab=1",
+        "labels": {
+            "alertname": "Watchdog",
+            "prometheus": "monitoring/kps-prometheus",
+            "severity": "none"
+        }
+    },
+    {
+        "annotations": {
+            "description": "This is an alert that is used to inhibit info alerts.\nBy themselves, the info-level alerts are sometimes very noisy, but they are relevant when combined with\nother alerts.\nThis alert fires whenever there's a severity=\"info\" alert, and stops firing when another alert with a\nseverity of 'warning' or 'critical' starts firing on the same namespace.\nThis alert should be routed to a null receiver and configured to inhibit alerts with severity=\"info\".\n",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/general/infoinhibitor",
+            "summary": "Info-level alert inhibition."
+        },
+        "endsAt": "2026-10-25T01:11:30.196Z",
+        "fingerprint": "f11be17bce863d8c",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-25T01:04:30.196Z",
+        "status": {
+            "inhibitedBy": [
+                "d68248beabce3f14"
+            ],
+            "silencedBy": [],
+            "state": "suppressed"
+        },
+        "updatedAt": "2026-10-25T01:07:30.200Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=ALERTS%7Bseverity%3D%22info%22%7D+%3D%3D+1+unless+on+%28namespace%29+ALERTS%7Balertname%21%3D%22InfoInhibitor%22%2Calertstate%3D%22firing%22%2Cseverity%3D~%22warning%7Ccritical%22%7D+%3D%3D+1&g0.tab=1",
+        "labels": {
+            "alertname": "InfoInhibitor",
+            "alertstate": "pending",
+            "container": "redis",
+            "namespace": "shoplite-staging",
+            "pod": "redis-master-0",
+            "prometheus": "monitoring/kps-prometheus",
+            "severity": "none"
+        }
+    },
+    {
+        "annotations": {
+            "description": "KubeControllerManager has disappeared from Prometheus target discovery.",
+            "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubecontrollermanagerdown",
+            "summary": "Target disappeared from Prometheus target discovery."
+        },
+        "endsAt": "2026-10-25T01:11:11.285Z",
+        "fingerprint": "f3af309dff998f14",
+        "receivers": [
+            {
+                "name": "null"
+            }
+        ],
+        "startsAt": "2026-10-24T07:22:11.285Z",
+        "status": {
+            "inhibitedBy": [],
+            "silencedBy": [],
+            "state": "active"
+        },
+        "updatedAt": "2026-10-25T01:07:11.287Z",
+        "generatorURL": "http://kps-prometheus.monitoring:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-controller-manager%22%7D+%3D%3D+1%29&g0.tab=1",
+        "labels": {
+            "alertname": "KubeControllerManagerDown",
+            "prometheus": "monitoring/kps-prometheus",
+            "severity": "critical"
+        }
+    }
+]

@@ -1,0 +1,217 @@
+Name:         shoplite-shoplite-api
+Namespace:    shoplite-staging
+Labels:       app.kubernetes.io/component=api
+              app.kubernetes.io/instance=shoplite
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=shoplite
+              app.kubernetes.io/part-of=shoplite
+              app.kubernetes.io/version=0.1.0
+              argocd.argoproj.io/instance=shoplite-staging
+              helm.sh/chart=shoplite-0.1.0
+Annotations:  rollout.argoproj.io/revision: 2
+API Version:  argoproj.io/v1alpha1
+Kind:         Rollout
+Metadata:
+  Creation Timestamp:  2026-10-25T00:23:46Z
+  Generation:          4
+  Resource Version:    1269681
+  UID:                 ade26fbc-4a14-4171-9779-e7f91c2e8942
+Spec:
+  Replicas:  2
+  Selector:
+    Match Labels:
+      app.kubernetes.io/component:  api
+      app.kubernetes.io/instance:   shoplite
+      app.kubernetes.io/name:       shoplite
+  Strategy:
+    Canary:
+      Canary Service:  shoplite-shoplite-api-canary
+      Stable Service:  shoplite-shoplite-api
+      Steps:
+        Set Weight:  10
+        Pause:
+          Duration:  60
+        Analysis:
+          Analysis Run Metadata:
+          Args:
+            Name:   service-name
+            Value:  shoplite-shoplite-api-canary
+          Templates:
+            Template Name:  shoplite-shoplite-api-error-rate
+        Set Weight:         50
+        Pause:
+          Duration:  60
+        Analysis:
+          Analysis Run Metadata:
+          Args:
+            Name:   service-name
+            Value:  shoplite-shoplite-api-canary
+          Templates:
+            Template Name:  shoplite-shoplite-api-error-rate
+        Set Weight:         100
+      Traffic Routing:
+        Nginx:
+          Stable Ingress:  shoplite-shoplite-api
+  Template:
+    Metadata:
+      Annotations:
+        prometheus.io/path:    /metrics
+        prometheus.io/port:    8000
+        prometheus.io/scrape:  true
+      Labels:
+        app.kubernetes.io/component:  api
+        app.kubernetes.io/instance:   shoplite
+        app.kubernetes.io/name:       shoplite
+        azure.workload.identity/use:  true
+    Spec:
+      Containers:
+        Env:
+          Name:   REDIS_URL
+          Value:  redis://redis-master.shoplite-staging.svc.cluster.local:6379
+          Name:   BAD_BUILD_ERROR_PCT
+          Value:  20
+          Name:   OTEL_EXPORTER_OTLP_ENDPOINT
+          Value:  http://tempo.monitoring.svc.cluster.local:4318
+        Env From:
+          Secret Ref:
+            Name:           shoplite-secrets
+        Image:              crshoplite.azurecr.io/shoplite-api@sha256:0c1019bf192c60133762448542c2bf6a5c6eee30abf3747eec30e753ff2a30b8
+        Image Pull Policy:  IfNotPresent
+        Liveness Probe:
+          Http Get:
+            Path:                 /healthz
+            Port:                 http
+          Initial Delay Seconds:  5
+          Period Seconds:         10
+        Name:                     api
+        Ports:
+          Container Port:  8000
+          Name:            http
+          Protocol:        TCP
+        Readiness Probe:
+          Http Get:
+            Path:                 /readyz
+            Port:                 http
+          Initial Delay Seconds:  3
+          Period Seconds:         5
+        Resources:
+          Limits:
+            Cpu:     500m
+            Memory:  256Mi
+          Requests:
+            Cpu:     100m
+            Memory:  128Mi
+        Security Context:
+          Allow Privilege Escalation:  false
+          Capabilities:
+            Drop:
+              ALL
+          Read Only Root Filesystem:  true
+          Run As Non Root:            true
+        Volume Mounts:
+          Mount Path:  /tmp
+          Name:        tmp
+      Security Context:
+        Fs Group:         65532
+        Run As Group:     65532
+        Run As Non Root:  true
+        Run As User:      65532
+        Seccomp Profile:
+          Type:              RuntimeDefault
+      Service Account Name:  shoplite
+      Volumes:
+        Empty Dir:
+        Name:  tmp
+Status:
+  HPA Replicas:        2
+  Abort:               true
+  Aborted At:          2026-10-25T01:02:14Z
+  Available Replicas:  2
+  Blue Green:
+  Canary:
+    Current Step Analysis Run Status:
+      Message:  Metric "error-rate" assessed Error due to consecutiveErrors (5) > consecutiveErrorLimit (4): "Error Message: Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query": dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local on 10.0.0.10:53: no such host"
+      Name:     shoplite-shoplite-api-85bb684555-2-2
+      Status:   Error
+    Weights:
+      Canary:
+        Pod Template Hash:  85bb684555
+        Service Name:       shoplite-shoplite-api-canary
+        Weight:             0
+      Stable:
+        Pod Template Hash:  76d5cb9c49
+        Service Name:       shoplite-shoplite-api
+        Weight:             100
+  Conditions:
+    Last Transition Time:  2026-10-25T00:24:07Z
+    Last Update Time:      2026-10-25T00:24:07Z
+    Message:               Rollout has minimum availability
+    Reason:                AvailableReason
+    Status:                True
+    Type:                  Available
+    Last Transition Time:  2026-10-25T01:00:25Z
+    Last Update Time:      2026-10-25T01:00:25Z
+    Message:               Rollout is not healthy
+    Reason:                RolloutHealthy
+    Status:                False
+    Type:                  Healthy
+    Last Transition Time:  2026-10-25T01:00:25Z
+    Last Update Time:      2026-10-25T01:00:25Z
+    Message:               RolloutCompleted
+    Reason:                RolloutCompleted
+    Status:                False
+    Type:                  Completed
+    Last Transition Time:  2026-10-25T01:01:34Z
+    Last Update Time:      2026-10-25T01:01:34Z
+    Message:               Rollout is paused
+    Reason:                RolloutPaused
+    Status:                False
+    Type:                  Paused
+    Last Transition Time:  2026-10-25T01:02:14Z
+    Last Update Time:      2026-10-25T01:02:14Z
+    Message:               Rollout aborted update to revision 2: Metric "error-rate" assessed Error due to consecutiveErrors (5) > consecutiveErrorLimit (4): "Error Message: Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query": dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local on 10.0.0.10:53: no such host"
+    Reason:                RolloutAborted
+    Status:                False
+    Type:                  Progressing
+  Current Pod Hash:        85bb684555
+  Current Step Hash:       c778cfbc4
+  Current Step Index:      0
+  Message:                 RolloutAborted: Rollout aborted update to revision 2: Metric "error-rate" assessed Error due to consecutiveErrors (5) > consecutiveErrorLimit (4): "Error Message: Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query": dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local on 10.0.0.10:53: no such host"
+  Observed Generation:     4
+  Phase:                   Degraded
+  Ready Replicas:          2
+  Replicas:                2
+  Selector:                app.kubernetes.io/component=api,app.kubernetes.io/instance=shoplite,app.kubernetes.io/name=shoplite
+  Stable RS:               76d5cb9c49
+Events:
+  Type     Reason                  Age                    From                 Message
+  ----     ------                  ----                   ----                 -------
+  Normal   RolloutAddedToInformer  44m                    rollouts-controller  Rollout resource added to informer: shoplite-staging/shoplite-shoplite-api
+  Normal   RolloutNotCompleted     43m                    rollouts-controller  Rollout not completed, started update to revision 1 (76d5cb9c49)
+  Normal   RolloutUpdated          43m                    rollouts-controller  Rollout updated to revision 1
+  Normal   NewReplicaSetCreated    43m                    rollouts-controller  Created ReplicaSet shoplite-shoplite-api-76d5cb9c49 (revision 1)
+  Normal   CreatingCanaryIngress   43m                    rollouts-controller  Creating canary ingress `shoplite-shoplite-api-shoplite-shoplite-api-canary` with weight `0`
+  Normal   TrafficWeightUpdated    43m                    rollouts-controller  Traffic weight updated to 0
+  Normal   ScalingReplicaSet       43m                    rollouts-controller  Scaled up ReplicaSet shoplite-shoplite-api-76d5cb9c49 (revision 1) from 0 to 1
+  Normal   RolloutCompleted        43m                    rollouts-controller  Rollout completed update to revision 1 (76d5cb9c49): Initial deploy
+  Normal   ScalingReplicaSet       43m                    rollouts-controller  Scaled up ReplicaSet shoplite-shoplite-api-76d5cb9c49 (revision 1) from 1 to 2
+  Normal   SwitchService           43m                    rollouts-controller  Switched selector for service 'shoplite-shoplite-api-canary' from '' to '76d5cb9c49'
+  Normal   SwitchService           43m                    rollouts-controller  Switched selector for service 'shoplite-shoplite-api' from '' to '76d5cb9c49'
+  Normal   NewReplicaSetCreated    7m23s                  rollouts-controller  Created ReplicaSet shoplite-shoplite-api-85bb684555 (revision 2)
+  Normal   RolloutUpdated          7m23s                  rollouts-controller  Rollout updated to revision 2
+  Normal   TrafficWeightUpdated    7m23s (x2 over 43m)    rollouts-controller  Traffic weight updated
+  Normal   RolloutNotCompleted     7m23s                  rollouts-controller  Rollout not completed, started update to revision 2 (85bb684555)
+  Normal   ScalingReplicaSet       7m22s                  rollouts-controller  Scaled up ReplicaSet shoplite-shoplite-api-85bb684555 (revision 2) from 0 to 1
+  Normal   PatchingCanaryIngress   7m15s                  rollouts-controller  Updating Ingress `shoplite-shoplite-api-shoplite-shoplite-api-canary` to desiredWeight '10'
+  Normal   TrafficWeightUpdated    7m15s                  rollouts-controller  Traffic weight updated from 0 to 10
+  Normal   RolloutStepCompleted    7m15s                  rollouts-controller  Rollout step 1/7 completed (setWeight: 10)
+  Normal   RolloutPaused           7m14s                  rollouts-controller  Rollout is paused (CanaryPauseStep)
+  Normal   AnalysisRunRunning      6m14s                  rollouts-controller  Step Analysis Run 'shoplite-shoplite-api-85bb684555-2-2' Status New: 'Running' Previous: ''
+  Normal   RolloutStepCompleted    6m14s                  rollouts-controller  Rollout step 2/7 completed (pause: 60)
+  Normal   RolloutResumed          6m14s                  rollouts-controller  Rollout is resumed
+  Normal   SwitchService           5m34s (x2 over 7m15s)  rollouts-controller  Switched selector for service 'shoplite-shoplite-api-canary' from '76d5cb9c49' to '85bb684555'
+  Warning  AnalysisRunError        5m34s                  rollouts-controller  Step Analysis Run 'shoplite-shoplite-api-85bb684555-2-2' Status New: 'Error' Previous: 'Running'
+  Warning  RolloutAborted          5m34s                  rollouts-controller  Rollout aborted update to revision 2: Metric "error-rate" assessed Error due to consecutiveErrors (5) > consecutiveErrorLimit (4): "Error Message: Post "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/query": dial tcp: lookup kube-prometheus-stack-prometheus.monitoring.svc.cluster.local on 10.0.0.10:53: no such host"
+  Normal   SwitchService           5m34s (x2 over 5m34s)  rollouts-controller  Switched selector for service 'shoplite-shoplite-api-canary' from '85bb684555' to '76d5cb9c49'
+  Normal   PatchingCanaryIngress   5m34s                  rollouts-controller  Updating Ingress `shoplite-shoplite-api-shoplite-shoplite-api-canary` to desiredWeight '0'
+  Normal   TrafficWeightUpdated    5m34s                  rollouts-controller  Traffic weight updated from 10 to 0
