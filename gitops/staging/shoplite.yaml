@@ -18,16 +18,26 @@ spec:
       releaseName: shoplite
       valueFiles:
         - values-staging.yaml
-      # Image tag is the one knob to bump on promotion. Overrides
-      # api.image.tag and worker.image.tag from the values file.
-      parameters:
-        - name: api.image.tag
-          value: "0.1.0"
-        - name: worker.image.tag
-          value: "0.1.0"
+      # Images are pinned by digest in values-staging.yaml (Kyverno
+      # verifyImages requires repository@sha256:...), so no parameter
+      # overrides for the tag are needed.
   destination:
     server: https://kubernetes.default.svc
     namespace: shoplite-staging
+  # Workaround for Argo CD v2.12 OpenAPI schema not knowing about K8s 1.33's
+  # new .status.terminatingReplicas field — without this, structured-merge
+  # diff fails and the sync aborts silently. Remove once we're on Argo CD
+  # v2.13+ which ships an updated schema.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers: ["/status/terminatingReplicas"]
+    - group: apps
+      kind: ReplicaSet
+      jsonPointers: ["/status/terminatingReplicas"]
+    - group: apps
+      kind: StatefulSet
+      jsonPointers: ["/status/terminatingReplicas"]
   # Argo creates the namespace with these labels baked in. The restricted
   # Pod Security Standard is enforced on every pod created here.
   syncPolicy:

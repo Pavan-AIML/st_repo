@@ -17,14 +17,22 @@ spec:
       releaseName: shoplite
       valueFiles:
         - values-prod.yaml
-      parameters:
-        - name: api.image.tag
-          value: "0.1.0"
-        - name: worker.image.tag
-          value: "0.1.0"
+      # Images pinned by digest in values-prod.yaml.
   destination:
     server: https://kubernetes.default.svc
     namespace: shoplite-prod
+  # Workaround for Argo CD v2.12 schema not knowing K8s 1.33's
+  # .status.terminatingReplicas. Remove on Argo CD v2.13+.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers: ["/status/terminatingReplicas"]
+    - group: apps
+      kind: ReplicaSet
+      jsonPointers: ["/status/terminatingReplicas"]
+    - group: apps
+      kind: StatefulSet
+      jsonPointers: ["/status/terminatingReplicas"]
   syncPolicy:
     managedNamespaceMetadata:
       labels:
