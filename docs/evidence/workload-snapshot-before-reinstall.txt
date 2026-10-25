@@ -1,0 +1,76 @@
+=== shoplite-staging ===
+NAME                 READY   STATUS    RESTARTS   AGE
+pod/redis-master-0   1/1     Running   0          33h
+
+NAME                     TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/redis-headless   ClusterIP   None          <none>        6379/TCP   33h
+service/redis-master     ClusterIP   10.0.66.252   <none>        6379/TCP   33h
+
+NAME                            READY   AGE
+statefulset.apps/redis-master   1/1     33h
+
+=== shoplite-prod ===
+NAME                                           READY   STATUS      RESTARTS   AGE
+pod/cm-acme-http-solver-x7n6l                  1/1     Running     0          27h
+pod/redis-master-0                             1/1     Running     0          28h
+pod/shoplite-shoplite-api-66dc87d495-chv7b     0/1     Completed   0          28h
+pod/shoplite-shoplite-api-66dc87d495-pmgvn     0/1     Completed   0          28h
+pod/shoplite-shoplite-api-66dc87d495-trz86     0/1     Completed   0          28h
+pod/shoplite-shoplite-api-76599b467d-vs4qf     1/1     Running     0          122m
+pod/shoplite-shoplite-worker-77c4b4978-jbkxr   1/1     Running     0          124m
+pod/shoplite-shoplite-worker-77c4b4978-xjgtz   1/1     Running     0          124m
+
+NAME                                   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/cm-acme-http-solver-7c95k      NodePort    10.0.175.5     <none>        8089:31027/TCP   27h
+service/redis-headless                 ClusterIP   None           <none>        6379/TCP         28h
+service/redis-master                   ClusterIP   10.0.210.229   <none>        6379/TCP         28h
+service/shoplite-shoplite-api          ClusterIP   10.0.122.232   <none>        80/TCP           45h
+service/shoplite-shoplite-api-canary   ClusterIP   10.0.48.8      <none>        80/TCP           17h
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shoplite-shoplite-api      0/3     0            0           45h
+deployment.apps/shoplite-shoplite-worker   2/2     2            2           45h
+
+NAME                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/shoplite-shoplite-api-66b44949f8      0         0         0       4h30m
+replicaset.apps/shoplite-shoplite-api-66dc87d495      3         0         0       28h
+replicaset.apps/shoplite-shoplite-api-76599b467d      1         1         1       122m
+replicaset.apps/shoplite-shoplite-api-7c664b856d      3         0         0       17h
+replicaset.apps/shoplite-shoplite-worker-5b69fb8dc8   0         0         0       28h
+replicaset.apps/shoplite-shoplite-worker-6cc868fdfc   0         0         0       26h
+replicaset.apps/shoplite-shoplite-worker-74c79458bd   0         0         0       45h
+replicaset.apps/shoplite-shoplite-worker-77c4b4978    2         2         2       124m
+replicaset.apps/shoplite-shoplite-worker-7b4f894b6d   0         0         0       28h
+replicaset.apps/shoplite-shoplite-worker-85b59768b4   0         0         0       28h
+replicaset.apps/shoplite-shoplite-worker-9559ff7d7    0         0         0       33h
+
+NAME                            READY   AGE
+statefulset.apps/redis-master   1/1     28h
+
+NAME                                                        REFERENCE                       TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/shoplite-shoplite-api   Rollout/shoplite-shoplite-api   cpu: 2%/65%   3         10        3          45h
+
+=== monitoring ===
+NAME                                                       READY   STATUS    RESTARTS      AGE
+alertmanager-kps-alertmanager-0                            2/2     Running   0             17h
+alloy-7jx2p                                                2/2     Running   0             9h
+alloy-sjlf6                                                2/2     Running   0             121m
+kps-operator-dfc95ddb4-4d5np                               1/1     Running   0             17h
+kube-prometheus-stack-grafana-b78cd469b-5snsw              3/3     Running   0             17h
+kube-prometheus-stack-kube-state-metrics-f8ddc6f78-ntcx5   1/1     Running   0             17h
+kube-prometheus-stack-prometheus-node-exporter-4wmbn       1/1     Running   0             17h
+kube-prometheus-stack-prometheus-node-exporter-8b9gm       1/1     Running   0             122m
+kube-prometheus-stack-prometheus-node-exporter-thxsf       1/1     Running   0             17h
+loki-0                                                     2/2     Running   0             64m
+prometheus-kps-prometheus-0                                2/2     Running   0             17h
+tempo-0                                                    1/1     Running   2 (28m ago)   64m
+
+=== argocd ===
+NAME                                               READY   STATUS             RESTARTS       AGE
+argocd-application-controller-0                    0/1     CrashLoopBackOff   6 (4m8s ago)   12m
+argocd-applicationset-controller-89768b544-khj46   1/1     Running            0              17h
+argocd-dex-server-748f94bd-84xpr                   1/1     Running            0              17h
+argocd-notifications-controller-79c57875f-9m6xz    1/1     Running            0              17h
+argocd-redis-59d8bccbbb-lzv74                      1/1     Running            0              17h
+argocd-repo-server-6678559bd5-v9zxv                1/1     Running            0              64m
+argocd-server-556cd95689-jrmzp                     1/1     Running            0              17h

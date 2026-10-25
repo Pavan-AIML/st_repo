@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import random
 import time
 from contextlib import asynccontextmanager
 
@@ -70,6 +71,12 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://shoplite:shoplite@localhost:5432/shoplite",
 )
+
+# BAD_BUILD_ERROR_PCT — percentage (0–100) of /products requests that return
+# HTTP 500. Set to 0 in prod; non-zero only to simulate a bad build so the
+# Argo Rollouts canary analysis detects it and aborts. Wired from Helm value
+# api.badBuildErrorPct (chart: templates/rollout-api.yaml).
+BAD_BUILD_ERROR_PCT = int(os.getenv("BAD_BUILD_ERROR_PCT", "0"))
 
 # ---------------------------------------------------------------------------
 # Prometheus metrics
@@ -192,6 +199,9 @@ async def metrics():
 
 @app.get("/products", response_model=list[ProductOut], tags=["products"])
 async def list_products():
+    if BAD_BUILD_ERROR_PCT > 0 and random.randint(1, 100) <= BAD_BUILD_ERROR_PCT:
+        logger.info({"event": "injected_failure", "pct": BAD_BUILD_ERROR_PCT})
+        raise HTTPException(status_code=500, detail="injected failure")
     async with AsyncSession() as session:
         result = await session.execute(text("SELECT id, name, price FROM products ORDER BY id"))
         rows = result.mappings().all()

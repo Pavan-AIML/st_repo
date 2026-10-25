@@ -1,0 +1,5434 @@
+apiVersion: v1
+items:
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"alloy","namespace":"argocd"},"spec":{"destination":{"namespace":"monitoring","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"alloy","helm":{"releaseName":"alloy","values":"alloy:\n  configMap:\n    content: |\n      discovery.kubernetes \"pods\" {\n        role = \"pod\"\n      }\n      discovery.relabel \"pods\" {\n        targets = discovery.kubernetes.pods.targets\n        rule {\n          source_labels = [\"__meta_kubernetes_namespace\"]\n          target_label  = \"namespace\"\n        }\n        rule {\n          source_labels = [\"__meta_kubernetes_pod_name\"]\n          target_label  = \"pod\"\n        }\n        rule {\n          source_labels = [\"__meta_kubernetes_pod_container_name\"]\n          target_label  = \"container\"\n        }\n        rule {\n          source_labels = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\"]\n          target_label  = \"component\"\n        }\n      }\n      loki.source.kubernetes \"pods\" {\n        targets    = discovery.relabel.pods.output\n        forward_to = [loki.write.default.receiver]\n      }\n      loki.write \"default\" {\n        endpoint {\n          url = \"http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push\"\n        }\n      }\n"},"repoURL":"https://grafana.github.io/helm-charts","targetRevision":"0.9.1"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T19:41:57Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 88
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: alloy
+    namespace: argocd
+    resourceVersion: "1239597"
+    uid: cac63e01-e10f-443b-b983-0adc25b470e0
+  spec:
+    destination:
+      namespace: monitoring
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: alloy
+      helm:
+        releaseName: alloy
+        values: |
+          alloy:
+            configMap:
+              content: |
+                discovery.kubernetes "pods" {
+                  role = "pod"
+                }
+                discovery.relabel "pods" {
+                  targets = discovery.kubernetes.pods.targets
+                  rule {
+                    source_labels = ["__meta_kubernetes_namespace"]
+                    target_label  = "namespace"
+                  }
+                  rule {
+                    source_labels = ["__meta_kubernetes_pod_name"]
+                    target_label  = "pod"
+                  }
+                  rule {
+                    source_labels = ["__meta_kubernetes_pod_container_name"]
+                    target_label  = "container"
+                  }
+                  rule {
+                    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+                    target_label  = "component"
+                  }
+                }
+                loki.source.kubernetes "pods" {
+                  targets    = discovery.relabel.pods.output
+                  forward_to = [loki.write.default.receiver]
+                }
+                loki.write "default" {
+                  endpoint {
+                    url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+                  }
+                }
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 0.9.1
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T22:35:45Z"
+      deployedAt: "2026-10-24T23:08:12Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 0.9.1
+      source:
+        chart: alloy
+        helm:
+          releaseName: alloy
+          values: |
+            alloy:
+              configMap:
+                content: |
+                  discovery.kubernetes "pods" {
+                    role = "pod"
+                  }
+                  discovery.relabel "pods" {
+                    targets = discovery.kubernetes.pods.targets
+                    rule {
+                      source_labels = ["__meta_kubernetes_namespace"]
+                      target_label  = "namespace"
+                    }
+                    rule {
+                      source_labels = ["__meta_kubernetes_pod_name"]
+                      target_label  = "pod"
+                    }
+                    rule {
+                      source_labels = ["__meta_kubernetes_pod_container_name"]
+                      target_label  = "container"
+                    }
+                    rule {
+                      source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+                      target_label  = "component"
+                    }
+                  }
+                  loki.source.kubernetes "pods" {
+                    targets    = discovery.relabel.pods.output
+                    forward_to = [loki.write.default.receiver]
+                  }
+                  loki.write "default" {
+                    endpoint {
+                      url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+                    }
+                  }
+        repoURL: https://grafana.github.io/helm-charts
+        targetRevision: 0.9.1
+    operationState:
+      finishedAt: "2026-10-24T23:08:13Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 0.9.1
+          syncOptions:
+          - ServerSideApply=true
+      phase: Succeeded
+      retryCount: 4
+      startedAt: "2026-10-24T22:35:45Z"
+      syncResult:
+        resources:
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/alloy serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ConfigMap
+          message: configmap/alloy serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/podlogs.monitoring.grafana.com
+            serverside-applied
+          name: podlogs.monitoring.grafana.com
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: clusterrole.rbac.authorization.k8s.io/alloy reconciled. reconciliation
+            required update. clusterrole.rbac.authorization.k8s.io/alloy serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRoleBinding
+          message: clusterrolebinding.rbac.authorization.k8s.io/alloy reconciled.
+            reconciliation required update. clusterrolebinding.rbac.authorization.k8s.io/alloy
+            serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/alloy serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: DaemonSet
+          message: daemonset.apps/alloy serverside-applied
+          name: alloy
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: 0.9.1
+        source:
+          chart: alloy
+          helm:
+            releaseName: alloy
+            values: |
+              alloy:
+                configMap:
+                  content: |
+                    discovery.kubernetes "pods" {
+                      role = "pod"
+                    }
+                    discovery.relabel "pods" {
+                      targets = discovery.kubernetes.pods.targets
+                      rule {
+                        source_labels = ["__meta_kubernetes_namespace"]
+                        target_label  = "namespace"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_name"]
+                        target_label  = "pod"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_container_name"]
+                        target_label  = "container"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+                        target_label  = "component"
+                      }
+                    }
+                    loki.source.kubernetes "pods" {
+                      targets    = discovery.relabel.pods.output
+                      forward_to = [loki.write.default.receiver]
+                    }
+                    loki.write "default" {
+                      endpoint {
+                        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+                      }
+                    }
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 0.9.1
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: alloy
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: alloy
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - kind: ServiceAccount
+      name: alloy
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: podlogs.monitoring.grafana.com
+      status: Synced
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: DaemonSet
+      name: alloy
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: alloy
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: alloy
+      status: Synced
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - docker.io/grafana/alloy:v1.4.2
+      - ghcr.io/jimmidyson/configmap-reload:v0.12.0
+    sync:
+      comparedTo:
+        destination:
+          namespace: monitoring
+          server: https://kubernetes.default.svc
+        source:
+          chart: alloy
+          helm:
+            releaseName: alloy
+            values: |
+              alloy:
+                configMap:
+                  content: |
+                    discovery.kubernetes "pods" {
+                      role = "pod"
+                    }
+                    discovery.relabel "pods" {
+                      targets = discovery.kubernetes.pods.targets
+                      rule {
+                        source_labels = ["__meta_kubernetes_namespace"]
+                        target_label  = "namespace"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_name"]
+                        target_label  = "pod"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_container_name"]
+                        target_label  = "container"
+                      }
+                      rule {
+                        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+                        target_label  = "component"
+                      }
+                    }
+                    loki.source.kubernetes "pods" {
+                      targets    = discovery.relabel.pods.output
+                      forward_to = [loki.write.default.receiver]
+                    }
+                    loki.write "default" {
+                      endpoint {
+                        url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+                      }
+                    }
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 0.9.1
+      revision: 0.9.1
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"argo-rollouts","namespace":"argocd"},"spec":{"destination":{"namespace":"argo-rollouts","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"argo-rollouts","helm":{"releaseName":"argo-rollouts","values":"controller:\n  replicas: 1\n  resources:\n    requests: { cpu: 50m, memory: 128Mi }\n    limits:   { cpu: 300m, memory: 256Mi }\ndashboard:\n  enabled: true\n"},"repoURL":"https://argoproj.github.io/argo-helm","targetRevision":"2.37.7"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T06:56:08Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 497
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: argo-rollouts
+    namespace: argocd
+    resourceVersion: "1239658"
+    uid: 226d6a60-4ad1-4334-b4fa-084efacbf99b
+  spec:
+    destination:
+      namespace: argo-rollouts
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: argo-rollouts
+      helm:
+        releaseName: argo-rollouts
+        values: |
+          controller:
+            replicas: 1
+            resources:
+              requests: { cpu: 50m, memory: 128Mi }
+              limits:   { cpu: 300m, memory: 256Mi }
+          dashboard:
+            enabled: true
+      repoURL: https://argoproj.github.io/argo-helm
+      targetRevision: 2.37.7
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:30:21Z"
+      message: 'Failed to compare desired state to live state: failed to calculate
+        diff: error calculating structured merge diff: error building typed value
+        from live resource: .status.terminatingReplicas: field not declared in schema'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Missing
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: argo-rollouts-config
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - kind: ConfigMap
+      name: argo-rollouts-notification-configmap
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - health:
+        status: Missing
+      kind: Service
+      name: argo-rollouts-dashboard
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: argo-rollouts
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - health:
+        status: Missing
+      kind: ServiceAccount
+      name: argo-rollouts-dashboard
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: analysisruns.argoproj.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: analysistemplates.argoproj.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusteranalysistemplates.argoproj.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: experiments.argoproj.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: rollouts.argoproj.io
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: argo-rollouts
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Missing
+      kind: Deployment
+      name: argo-rollouts-dashboard
+      namespace: argo-rollouts
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: argo-rollouts
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: argo-rollouts-aggregate-to-admin
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: argo-rollouts-aggregate-to-edit
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: argo-rollouts-aggregate-to-view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      health:
+        status: Missing
+      kind: ClusterRole
+      name: argo-rollouts-dashboard
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: argo-rollouts
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      health:
+        status: Missing
+      kind: ClusterRoleBinding
+      name: argo-rollouts-dashboard
+      status: Unknown
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - quay.io/argoproj/argo-rollouts:v1.7.2
+    sync:
+      comparedTo:
+        destination:
+          namespace: argo-rollouts
+          server: https://kubernetes.default.svc
+        source:
+          chart: argo-rollouts
+          helm:
+            releaseName: argo-rollouts
+            values: |
+              controller:
+                replicas: 1
+                resources:
+                  requests: { cpu: 50m, memory: 128Mi }
+                  limits:   { cpu: 300m, memory: 256Mi }
+              dashboard:
+                enabled: true
+          repoURL: https://argoproj.github.io/argo-helm
+          targetRevision: 2.37.7
+      revision: 2.37.7
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"cert-manager","namespace":"argocd"},"spec":{"destination":{"namespace":"cert-manager","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"cert-manager","helm":{"releaseName":"cert-manager","values":"crds:\n  enabled: true\nresources:\n  requests:\n    cpu: 50m\n    memory: 64Mi\n  limits:\n    cpu: 200m\n    memory: 128Mi\nwebhook:\n  resources:\n    requests:\n      cpu: 50m\n      memory: 64Mi\ncainjector:\n  resources:\n    requests:\n      cpu: 50m\n      memory: 64Mi\n"},"repoURL":"https://charts.jetstack.io","targetRevision":"v1.16.1"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:53Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 2982
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: cert-manager
+    namespace: argocd
+    resourceVersion: "1239667"
+    uid: 00cf39e7-3a7f-4030-bd5d-bb45b04b5487
+  spec:
+    destination:
+      namespace: cert-manager
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: cert-manager
+      helm:
+        releaseName: cert-manager
+        values: |
+          crds:
+            enabled: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          webhook:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+          cainjector:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+      repoURL: https://charts.jetstack.io
+      targetRevision: v1.16.1
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:30:21Z"
+      message: 'Failed to compare desired state to live state: failed to calculate
+        diff: error calculating structured merge diff: error building typed value
+        from live resource: .status.terminatingReplicas: field not declared in schema'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-23T03:01:17Z"
+      deployedAt: "2026-10-23T03:02:54Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: v1.16.1
+      source:
+        chart: cert-manager
+        helm:
+          releaseName: cert-manager
+          values: |
+            crds:
+              enabled: true
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 128Mi
+            webhook:
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+            cainjector:
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+        repoURL: https://charts.jetstack.io
+        targetRevision: v1.16.1
+    operationState:
+      finishedAt: "2026-10-23T03:40:50Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          resources:
+          - group: admissionregistration.k8s.io
+            kind: ValidatingWebhookConfiguration
+            name: cert-manager-webhook
+          revision: v1.16.1
+          syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+      phase: Succeeded
+      startedAt: "2026-10-23T03:40:50Z"
+      syncResult:
+        resources:
+        - group: admissionregistration.k8s.io
+          hookPhase: Running
+          kind: ValidatingWebhookConfiguration
+          message: validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook
+            serverside-applied
+          name: cert-manager-webhook
+          namespace: cert-manager
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: v1.16.1
+        source:
+          chart: cert-manager
+          helm:
+            releaseName: cert-manager
+            values: |
+              crds:
+                enabled: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              webhook:
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+              cainjector:
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+          repoURL: https://charts.jetstack.io
+          targetRevision: v1.16.1
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - health:
+        status: Healthy
+      kind: Service
+      name: cert-manager
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: cert-manager-cainjector
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: cert-manager-webhook
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: cert-manager
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: cert-manager-cainjector
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: cert-manager-webhook
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: cert-manager-webhook
+      status: Unknown
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: cert-manager-webhook
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: certificaterequests.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: certificates.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: challenges.acme.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusterissuers.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: issuers.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: orders.acme.cert-manager.io
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: cert-manager
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: cert-manager-cainjector
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: cert-manager-webhook
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-cainjector
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-cluster-view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-approve:cert-manager-io
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-certificates
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-certificatesigningrequests
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-challenges
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-clusterissuers
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-ingress-shim
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-issuers
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-controller-orders
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-edit
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cert-manager-webhook:subjectaccessreviews
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-cainjector
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-approve:cert-manager-io
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-certificates
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-certificatesigningrequests
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-challenges
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-clusterissuers
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-ingress-shim
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-issuers
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-controller-orders
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: cert-manager-webhook:subjectaccessreviews
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: cert-manager-tokenrequest
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: cert-manager-webhook:dynamic-serving
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: cert-manager-cainjector:leaderelection
+      namespace: kube-system
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: cert-manager:leaderelection
+      namespace: kube-system
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: cert-manager-cert-manager-tokenrequest
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: cert-manager-webhook:dynamic-serving
+      namespace: cert-manager
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: cert-manager-cainjector:leaderelection
+      namespace: kube-system
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: cert-manager:leaderelection
+      namespace: kube-system
+      status: Unknown
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - quay.io/jetstack/cert-manager-cainjector:v1.16.1
+      - quay.io/jetstack/cert-manager-controller:v1.16.1
+      - quay.io/jetstack/cert-manager-webhook:v1.16.1
+    sync:
+      comparedTo:
+        destination:
+          namespace: cert-manager
+          server: https://kubernetes.default.svc
+        source:
+          chart: cert-manager
+          helm:
+            releaseName: cert-manager
+            values: |
+              crds:
+                enabled: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              webhook:
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+              cainjector:
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+          repoURL: https://charts.jetstack.io
+          targetRevision: v1.16.1
+      revision: v1.16.1
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"cert-manager-issuer","namespace":"argocd"},"spec":{"destination":{"namespace":"cert-manager","server":"https://kubernetes.default.svc"},"project":"default","source":{"directory":{"recurse":true},"path":"gitops/platform/issuers","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T21:25:40Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 2173
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: cert-manager-issuer
+    namespace: argocd
+    resourceVersion: "1239617"
+    uid: 9ddc4e17-c26f-431b-8d61-12c737cfe165
+  spec:
+    destination:
+      namespace: cert-manager
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      directory:
+        jsonnet: {}
+        recurse: true
+      path: gitops/platform/issuers
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T12:23:11Z"
+      deployedAt: "2026-10-24T12:23:13Z"
+      id: 13
+      initiatedBy:
+        automated: true
+      revision: d4fd9fe67fa4970adee896ca22b29e377a08be86
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T13:30:39Z"
+      deployedAt: "2026-10-24T13:30:40Z"
+      id: 14
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T15:01:09Z"
+      deployedAt: "2026-10-24T15:01:10Z"
+      id: 15
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T15:55:21Z"
+      deployedAt: "2026-10-24T15:55:24Z"
+      id: 16
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T17:40:23Z"
+      deployedAt: "2026-10-24T17:40:25Z"
+      id: 17
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:11:32Z"
+      deployedAt: "2026-10-24T19:11:34Z"
+      id: 18
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:41:41Z"
+      deployedAt: "2026-10-24T19:41:42Z"
+      id: 19
+      initiatedBy:
+        automated: true
+      revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T21:56:27Z"
+      deployedAt: "2026-10-24T21:56:29Z"
+      id: 20
+      initiatedBy:
+        automated: true
+      revision: 35c55105000cce1f1732c756c5adc320be0d9702
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:19:47Z"
+      deployedAt: "2026-10-24T22:19:48Z"
+      id: 21
+      initiatedBy:
+        automated: true
+      revision: 5959d9b94429ebbc895b064959fee618012fff97
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:35:50Z"
+      deployedAt: "2026-10-24T22:41:08Z"
+      id: 22
+      initiatedBy:
+        automated: true
+      revision: b57a6d69678ef0fe7e1e2a391bb1acaf19459299
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/issuers
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      finishedAt: "2026-10-24T22:41:08Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: b57a6d69678ef0fe7e1e2a391bb1acaf19459299
+          syncOptions:
+          - ServerSideApply=true
+      phase: Succeeded
+      startedAt: "2026-10-24T22:35:50Z"
+      syncResult:
+        resources:
+        - group: cert-manager.io
+          hookPhase: Running
+          kind: ClusterIssuer
+          message: clusterissuer.cert-manager.io/letsencrypt-staging serverside-applied
+          name: letsencrypt-staging
+          namespace: cert-manager
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: b57a6d69678ef0fe7e1e2a391bb1acaf19459299
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/platform/issuers
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - group: cert-manager.io
+      health:
+        message: The ACME account was registered with the ACME server
+        status: Healthy
+      kind: ClusterIssuer
+      name: letsencrypt-staging
+      status: Synced
+      version: v1
+    sourceType: Directory
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: cert-manager
+          server: https://kubernetes.default.svc
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/platform/issuers
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"external-secrets","namespace":"argocd"},"spec":{"destination":{"namespace":"external-secrets","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"external-secrets","helm":{"releaseName":"external-secrets","values":"installCRDs: true\nreplicaCount: 1\nresources:\n  requests:\n    cpu: 50m\n    memory: 64Mi\n  limits:\n    cpu: 200m\n    memory: 128Mi\nwebhook:\n  replicaCount: 1\ncertController:\n  replicaCount: 1\n"},"repoURL":"https://charts.external-secrets.io","targetRevision":"0.10.5"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:54Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 747
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: external-secrets
+    namespace: argocd
+    resourceVersion: "1239641"
+    uid: 1cd22560-f3aa-4bd9-a1d2-19ef36401e60
+  spec:
+    destination:
+      namespace: external-secrets
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: external-secrets
+      helm:
+        releaseName: external-secrets
+        values: |
+          installCRDs: true
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          webhook:
+            replicaCount: 1
+          certController:
+            replicaCount: 1
+      repoURL: https://charts.external-secrets.io
+      targetRevision: 0.10.5
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:30:21Z"
+      message: 'Failed to compare desired state to live state: failed to calculate
+        diff: error calculating structured merge diff: error building typed value
+        from live resource: .status.terminatingReplicas: field not declared in schema'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-23T03:01:13Z"
+      deployedAt: "2026-10-23T03:01:27Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 0.10.5
+      source:
+        chart: external-secrets
+        helm:
+          releaseName: external-secrets
+          values: |
+            installCRDs: true
+            replicaCount: 1
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 128Mi
+            webhook:
+              replicaCount: 1
+            certController:
+              replicaCount: 1
+        repoURL: https://charts.external-secrets.io
+        targetRevision: 0.10.5
+    operationState:
+      finishedAt: "2026-10-23T03:01:27Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 0.10.5
+          syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+      phase: Succeeded
+      startedAt: "2026-10-23T03:01:13Z"
+      syncResult:
+        resources:
+        - group: ""
+          hookPhase: Running
+          kind: Namespace
+          message: namespace/external-secrets serverside-applied
+          name: external-secrets
+          namespace: ""
+          status: Synced
+          syncPhase: PreSync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/external-secrets serverside-applied
+          name: external-secrets
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/external-secrets-cert-controller serverside-applied
+          name: external-secrets-cert-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/external-secrets-webhook serverside-applied
+          name: external-secrets-webhook
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Secret
+          message: secret/external-secrets-webhook serverside-applied
+          name: external-secrets-webhook
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/acraccesstokens.generators.external-secrets.io
+            serverside-applied
+          name: acraccesstokens.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/githubaccesstokens.generators.external-secrets.io
+            serverside-applied
+          name: githubaccesstokens.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/passwords.generators.external-secrets.io
+            serverside-applied
+          name: passwords.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/fakes.generators.external-secrets.io
+            serverside-applied
+          name: fakes.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/uuids.generators.external-secrets.io
+            serverside-applied
+          name: uuids.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/vaultdynamicsecrets.generators.external-secrets.io
+            serverside-applied
+          name: vaultdynamicsecrets.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/externalsecrets.external-secrets.io
+            serverside-applied
+          name: externalsecrets.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/gcraccesstokens.generators.external-secrets.io
+            serverside-applied
+          name: gcraccesstokens.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/webhooks.generators.external-secrets.io
+            serverside-applied
+          name: webhooks.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/ecrauthorizationtokens.generators.external-secrets.io
+            serverside-applied
+          name: ecrauthorizationtokens.generators.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/clusterexternalsecrets.external-secrets.io
+            serverside-applied
+          name: clusterexternalsecrets.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/pushsecrets.external-secrets.io
+            serverside-applied
+          name: pushsecrets.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/clustersecretstores.external-secrets.io
+            serverside-applied
+          name: clustersecretstores.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apiextensions.k8s.io
+          hookPhase: Running
+          kind: CustomResourceDefinition
+          message: customresourcedefinition.apiextensions.k8s.io/secretstores.external-secrets.io
+            serverside-applied
+          name: secretstores.external-secrets.io
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/external-secrets-edit reconciled.
+            reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[create
+            delete deletecollection patch update] APIGroups:[external-secrets.io]
+            Resources:[externalsecrets secretstores clustersecretstores pushsecrets]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create delete deletecollection
+            patch update] APIGroups:[generators.external-secrets.io] Resources:[acraccesstokens
+            ecrauthorizationtokens fakes gcraccesstokens githubaccesstokens passwords
+            vaultdynamicsecrets webhooks] ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/external-secrets-edit
+            serverside-applied"
+          name: external-secrets-edit
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/external-secrets-view reconciled.
+            reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[get
+            watch list] APIGroups:[external-secrets.io] Resources:[externalsecrets
+            secretstores clustersecretstores pushsecrets] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            watch list] APIGroups:[generators.external-secrets.io] Resources:[acraccesstokens
+            ecrauthorizationtokens fakes gcraccesstokens githubaccesstokens passwords
+            vaultdynamicsecrets webhooks] ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/external-secrets-view
+            serverside-applied"
+          name: external-secrets-view
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/external-secrets-servicebindings
+            reconciled. reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[get
+            list watch] APIGroups:[external-secrets.io] Resources:[externalsecrets]
+            ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/external-secrets-servicebindings
+            serverside-applied"
+          name: external-secrets-servicebindings
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/external-secrets-cert-controller
+            reconciled. reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[get
+            list watch update patch] APIGroups:[apiextensions.k8s.io] Resources:[customresourcedefinitions]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[list watch get] APIGroups:[admissionregistration.k8s.io]
+            Resources:[validatingwebhookconfigurations] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[update
+            patch] APIGroups:[admissionregistration.k8s.io] Resources:[validatingwebhookconfigurations]
+            ResourceNames:[secretstore-validate externalsecret-validate] NonResourceURLs:[]}\n\t\t{Verbs:[list
+            get watch] APIGroups:[] Resources:[endpoints] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create
+            patch] APIGroups:[] Resources:[events] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch update patch] APIGroups:[] Resources:[secrets] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[get create update patch] APIGroups:[coordination.k8s.io]
+            Resources:[leases] ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/external-secrets-cert-controller
+            serverside-applied"
+          name: external-secrets-cert-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/external-secrets-controller
+            reconciled. reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[get
+            list watch] APIGroups:[external-secrets.io] Resources:[secretstores clustersecretstores
+            externalsecrets clusterexternalsecrets pushsecrets] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            update patch] APIGroups:[external-secrets.io] Resources:[externalsecrets
+            externalsecrets/status externalsecrets/finalizers secretstores secretstores/status
+            secretstores/finalizers clustersecretstores clustersecretstores/status
+            clustersecretstores/finalizers clusterexternalsecrets clusterexternalsecrets/status
+            clusterexternalsecrets/finalizers pushsecrets pushsecrets/status pushsecrets/finalizers]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get list watch] APIGroups:[generators.external-secrets.io]
+            Resources:[acraccesstokens ecrauthorizationtokens fakes gcraccesstokens
+            githubaccesstokens passwords vaultdynamicsecrets webhooks] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[get list watch] APIGroups:[] Resources:[serviceaccounts
+            namespaces] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get list
+            watch] APIGroups:[] Resources:[configmaps] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch create update delete patch] APIGroups:[] Resources:[secrets]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create] APIGroups:[]
+            Resources:[serviceaccounts/token] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create
+            patch] APIGroups:[] Resources:[events] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create
+            update delete] APIGroups:[external-secrets.io] Resources:[externalsecrets]
+            ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/external-secrets-controller
+            serverside-applied"
+          name: external-secrets-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRoleBinding
+          message: "clusterrolebinding.rbac.authorization.k8s.io/external-secrets-controller
+            reconciled. reconciliation required create\n\tmissing subjects added:\n\t\t{Kind:ServiceAccount
+            APIGroup: Name:external-secrets Namespace:external-secrets}. clusterrolebinding.rbac.authorization.k8s.io/external-secrets-controller
+            serverside-applied"
+          name: external-secrets-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRoleBinding
+          message: "clusterrolebinding.rbac.authorization.k8s.io/external-secrets-cert-controller
+            reconciled. reconciliation required create\n\tmissing subjects added:\n\t\t{Kind:ServiceAccount
+            APIGroup: Name:external-secrets-cert-controller Namespace:external-secrets}.
+            clusterrolebinding.rbac.authorization.k8s.io/external-secrets-cert-controller
+            serverside-applied"
+          name: external-secrets-cert-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: Role
+          message: "role.rbac.authorization.k8s.io/external-secrets-leaderelection
+            reconciled. reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[get
+            update patch] APIGroups:[] Resources:[configmaps] ResourceNames:[external-secrets-controller]
+            NonResourceURLs:[]}\n\t\t{Verbs:[create] APIGroups:[] Resources:[configmaps]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get create update patch]
+            APIGroups:[coordination.k8s.io] Resources:[leases] ResourceNames:[] NonResourceURLs:[]}.
+            role.rbac.authorization.k8s.io/external-secrets-leaderelection serverside-applied"
+          name: external-secrets-leaderelection
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: RoleBinding
+          message: "rolebinding.rbac.authorization.k8s.io/external-secrets-leaderelection
+            reconciled. reconciliation required create\n\tmissing subjects added:\n\t\t{Kind:ServiceAccount
+            APIGroup: Name:external-secrets Namespace:external-secrets}. rolebinding.rbac.authorization.k8s.io/external-secrets-leaderelection
+            serverside-applied"
+          name: external-secrets-leaderelection
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/external-secrets-webhook serverside-applied
+          name: external-secrets-webhook
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: Deployment
+          message: deployment.apps/external-secrets serverside-applied
+          name: external-secrets
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: Deployment
+          message: deployment.apps/external-secrets-webhook serverside-applied
+          name: external-secrets-webhook
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: Deployment
+          message: deployment.apps/external-secrets-cert-controller serverside-applied
+          name: external-secrets-cert-controller
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: admissionregistration.k8s.io
+          hookPhase: Running
+          kind: ValidatingWebhookConfiguration
+          message: validatingwebhookconfiguration.admissionregistration.k8s.io/secretstore-validate
+            serverside-applied
+          name: secretstore-validate
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: admissionregistration.k8s.io
+          hookPhase: Running
+          kind: ValidatingWebhookConfiguration
+          message: validatingwebhookconfiguration.admissionregistration.k8s.io/externalsecret-validate
+            serverside-applied
+          name: externalsecret-validate
+          namespace: external-secrets
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: 0.10.5
+        source:
+          chart: external-secrets
+          helm:
+            releaseName: external-secrets
+            values: |
+              installCRDs: true
+              replicaCount: 1
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              webhook:
+                replicaCount: 1
+              certController:
+                replicaCount: 1
+          repoURL: https://charts.external-secrets.io
+          targetRevision: 0.10.5
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: Secret
+      name: external-secrets-webhook
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: external-secrets-webhook
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: external-secrets
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: external-secrets-cert-controller
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: external-secrets-webhook
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: externalsecret-validate
+      status: Unknown
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: secretstore-validate
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: acraccesstokens.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusterexternalsecrets.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clustersecretstores.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: ecrauthorizationtokens.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: externalsecrets.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: fakes.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: gcraccesstokens.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: githubaccesstokens.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: passwords.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: pushsecrets.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: secretstores.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: uuids.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: vaultdynamicsecrets.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: webhooks.generators.external-secrets.io
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: external-secrets
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: external-secrets-cert-controller
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: external-secrets-webhook
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: external-secrets-cert-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: external-secrets-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: external-secrets-edit
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: external-secrets-servicebindings
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: external-secrets-view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: external-secrets-cert-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: external-secrets-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: external-secrets-leaderelection
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: external-secrets-leaderelection
+      namespace: external-secrets
+      status: Unknown
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - oci.external-secrets.io/external-secrets/external-secrets:v0.10.5
+    sync:
+      comparedTo:
+        destination:
+          namespace: external-secrets
+          server: https://kubernetes.default.svc
+        source:
+          chart: external-secrets
+          helm:
+            releaseName: external-secrets
+            values: |
+              installCRDs: true
+              replicaCount: 1
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              webhook:
+                replicaCount: 1
+              certController:
+                replicaCount: 1
+          repoURL: https://charts.external-secrets.io
+          targetRevision: 0.10.5
+      revision: 0.10.5
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"ingress-nginx","namespace":"argocd"},"spec":{"destination":{"namespace":"ingress-nginx","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"ingress-nginx","helm":{"releaseName":"ingress-nginx","values":"controller:\n  replicaCount: 2\n  service:\n    type: LoadBalancer\n    annotations:\n      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz\n  resources:\n    requests:\n      cpu: 100m\n      memory: 128Mi\n    limits:\n      cpu: 500m\n      memory: 256Mi\n  metrics:\n    enabled: true\n  podDisruptionBudget:\n    enabled: true\n    minAvailable: 1\ndefaultBackend:\n  enabled: false\n"},"repoURL":"https://kubernetes.github.io/ingress-nginx","targetRevision":"4.11.3"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:54Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 928
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: ingress-nginx
+    namespace: argocd
+    resourceVersion: "1239600"
+    uid: 11cd5d46-db57-4aa7-96ad-98dc574602ca
+  spec:
+    destination:
+      namespace: ingress-nginx
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: ingress-nginx
+      helm:
+        releaseName: ingress-nginx
+        values: |
+          controller:
+            replicaCount: 2
+            service:
+              type: LoadBalancer
+              annotations:
+                service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 256Mi
+            metrics:
+              enabled: true
+            podDisruptionBudget:
+              enabled: true
+              minAvailable: 1
+          defaultBackend:
+            enabled: false
+      repoURL: https://kubernetes.github.io/ingress-nginx
+      targetRevision: 4.11.3
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-23T03:01:08Z"
+      deployedAt: "2026-10-23T03:02:23Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 4.11.3
+      source:
+        chart: ingress-nginx
+        helm:
+          releaseName: ingress-nginx
+          values: |
+            controller:
+              replicaCount: 2
+              service:
+                type: LoadBalancer
+                annotations:
+                  service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi
+              metrics:
+                enabled: true
+              podDisruptionBudget:
+                enabled: true
+                minAvailable: 1
+            defaultBackend:
+              enabled: false
+        repoURL: https://kubernetes.github.io/ingress-nginx
+        targetRevision: 4.11.3
+    operationState:
+      finishedAt: "2026-10-23T03:02:23Z"
+      message: successfully synced (no more tasks)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 4.11.3
+          syncOptions:
+          - CreateNamespace=true
+      phase: Succeeded
+      startedAt: "2026-10-23T03:01:08Z"
+      syncResult:
+        resources:
+        - group: ""
+          hookPhase: Running
+          kind: Namespace
+          message: namespace/ingress-nginx created
+          name: ingress-nginx
+          namespace: ""
+          status: Synced
+          syncPhase: PreSync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: ServiceAccount
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: ClusterRole
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: ClusterRoleBinding
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: Role
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: RoleBinding
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: batch
+          hookPhase: Succeeded
+          hookType: PreSync
+          kind: Job
+          message: Reached expected number of succeeded pods
+          name: ingress-nginx-admission-create
+          namespace: ingress-nginx
+          syncPhase: PreSync
+          version: v1
+        - group: policy
+          hookPhase: Succeeded
+          kind: PodDisruptionBudget
+          message: poddisruptionbudget.policy/ingress-nginx-controller created
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          kind: ServiceAccount
+          message: serviceaccount/ingress-nginx created
+          name: ingress-nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          kind: ConfigMap
+          message: configmap/ingress-nginx-controller created
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          kind: ClusterRole
+          message: "clusterrole.rbac.authorization.k8s.io/ingress-nginx reconciled.
+            reconciliation required create\n\tmissing rules added:\n\t\t{Verbs:[list
+            watch] APIGroups:[] Resources:[configmaps endpoints nodes pods secrets
+            namespaces] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[list watch]
+            APIGroups:[coordination.k8s.io] Resources:[leases] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get]
+            APIGroups:[] Resources:[nodes] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[] Resources:[services] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[networking.k8s.io] Resources:[ingresses] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[create patch] APIGroups:[] Resources:[events]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[update] APIGroups:[networking.k8s.io]
+            Resources:[ingresses/status] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[networking.k8s.io] Resources:[ingressclasses] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[list watch get] APIGroups:[discovery.k8s.io]
+            Resources:[endpointslices] ResourceNames:[] NonResourceURLs:[]}. clusterrole.rbac.authorization.k8s.io/ingress-nginx
+            configured. Warning: resource clusterroles/ingress-nginx is missing the
+            kubectl.kubernetes.io/last-applied-configuration annotation which is required
+            by  apply.  apply should only be used on resources created declaratively
+            by either  create --save-config or  apply. The missing annotation will
+            be patched automatically."
+          name: ingress-nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          kind: ClusterRoleBinding
+          message: "clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx reconciled.
+            reconciliation required create\n\tmissing subjects added:\n\t\t{Kind:ServiceAccount
+            APIGroup: Name:ingress-nginx Namespace:ingress-nginx}. clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx
+            configured. Warning: resource clusterrolebindings/ingress-nginx is missing
+            the kubectl.kubernetes.io/last-applied-configuration annotation which
+            is required by  apply.  apply should only be used on resources created
+            declaratively by either  create --save-config or  apply. The missing annotation
+            will be patched automatically."
+          name: ingress-nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          kind: Role
+          message: "role.rbac.authorization.k8s.io/ingress-nginx reconciled. reconciliation
+            required create\n\tmissing rules added:\n\t\t{Verbs:[get] APIGroups:[]
+            Resources:[namespaces] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[] Resources:[configmaps pods secrets endpoints]
+            ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get list watch] APIGroups:[]
+            Resources:[services] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[networking.k8s.io] Resources:[ingresses] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[update] APIGroups:[networking.k8s.io]
+            Resources:[ingresses/status] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[get
+            list watch] APIGroups:[networking.k8s.io] Resources:[ingressclasses] ResourceNames:[]
+            NonResourceURLs:[]}\n\t\t{Verbs:[get update] APIGroups:[coordination.k8s.io]
+            Resources:[leases] ResourceNames:[ingress-nginx-leader] NonResourceURLs:[]}\n\t\t{Verbs:[create]
+            APIGroups:[coordination.k8s.io] Resources:[leases] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[create
+            patch] APIGroups:[] Resources:[events] ResourceNames:[] NonResourceURLs:[]}\n\t\t{Verbs:[list
+            watch get] APIGroups:[discovery.k8s.io] Resources:[endpointslices] ResourceNames:[]
+            NonResourceURLs:[]}. role.rbac.authorization.k8s.io/ingress-nginx configured.
+            Warning: resource roles/ingress-nginx is missing the kubectl.kubernetes.io/last-applied-configuration
+            annotation which is required by  apply.  apply should only be used on
+            resources created declaratively by either  create --save-config or  apply.
+            The missing annotation will be patched automatically."
+          name: ingress-nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          kind: RoleBinding
+          message: "rolebinding.rbac.authorization.k8s.io/ingress-nginx reconciled.
+            reconciliation required create\n\tmissing subjects added:\n\t\t{Kind:ServiceAccount
+            APIGroup: Name:ingress-nginx Namespace:ingress-nginx}. rolebinding.rbac.authorization.k8s.io/ingress-nginx
+            configured. Warning: resource rolebindings/ingress-nginx is missing the
+            kubectl.kubernetes.io/last-applied-configuration annotation which is required
+            by  apply.  apply should only be used on resources created declaratively
+            by either  create --save-config or  apply. The missing annotation will
+            be patched automatically."
+          name: ingress-nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          kind: Service
+          message: service/ingress-nginx-controller-admission created
+          name: ingress-nginx-controller-admission
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          kind: Service
+          message: service/ingress-nginx-controller created
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          kind: Service
+          message: service/ingress-nginx-controller-metrics created
+          name: ingress-nginx-controller-metrics
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Succeeded
+          kind: Deployment
+          message: deployment.apps/ingress-nginx-controller created
+          name: ingress-nginx-controller
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: networking.k8s.io
+          hookPhase: Succeeded
+          kind: IngressClass
+          message: ingressclass.networking.k8s.io/nginx created
+          name: nginx
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: admissionregistration.k8s.io
+          hookPhase: Succeeded
+          kind: ValidatingWebhookConfiguration
+          message: validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission
+            created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: ServiceAccount
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: ClusterRole
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: ClusterRoleBinding
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: Role
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: RoleBinding
+          message: ingress-nginx-admission created
+          name: ingress-nginx-admission
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        - group: batch
+          hookPhase: Succeeded
+          hookType: PostSync
+          kind: Job
+          message: Reached expected number of succeeded pods
+          name: ingress-nginx-admission-patch
+          namespace: ingress-nginx
+          syncPhase: PostSync
+          version: v1
+        revision: 4.11.3
+        source:
+          chart: ingress-nginx
+          helm:
+            releaseName: ingress-nginx
+            values: |
+              controller:
+                replicaCount: 2
+                service:
+                  type: LoadBalancer
+                  annotations:
+                    service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 256Mi
+                metrics:
+                  enabled: true
+                podDisruptionBudget:
+                  enabled: true
+                  minAvailable: 1
+              defaultBackend:
+                enabled: false
+          repoURL: https://kubernetes.github.io/ingress-nginx
+          targetRevision: 4.11.3
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: ingress-nginx-controller-metrics
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      status: Synced
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: IngressClass
+      name: nginx
+      status: Synced
+      version: v1
+    - group: policy
+      kind: PodDisruptionBudget
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: ingress-nginx
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      status: Synced
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - registry.k8s.io/ingress-nginx/controller:v1.11.3@sha256:d56f135b6462cfc476447cfe564b83a45e8bb7da2774963b00d12161112270b7
+    sync:
+      comparedTo:
+        destination:
+          namespace: ingress-nginx
+          server: https://kubernetes.default.svc
+        source:
+          chart: ingress-nginx
+          helm:
+            releaseName: ingress-nginx
+            values: |
+              controller:
+                replicaCount: 2
+                service:
+                  type: LoadBalancer
+                  annotations:
+                    service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 256Mi
+                metrics:
+                  enabled: true
+                podDisruptionBudget:
+                  enabled: true
+                  minAvailable: 1
+              defaultBackend:
+                enabled: false
+          repoURL: https://kubernetes.github.io/ingress-nginx
+          targetRevision: 4.11.3
+      revision: 4.11.3
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"kube-prometheus-stack","namespace":"argocd"},"spec":{"destination":{"namespace":"monitoring","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"kube-prometheus-stack","helm":{"releaseName":"kube-prometheus-stack","values":"fullnameOverride: kps\nprometheus:\n  prometheusSpec:\n    retention: 7d\n    resources:\n      requests: { cpu: 200m, memory: 512Mi }\n      limits:   { cpu: 1,     memory: 1Gi }\n    # Pick up ServiceMonitors from ANY namespace, not just monitoring.\n    serviceMonitorSelectorNilUsesHelmValues: false\n    podMonitorSelectorNilUsesHelmValues: false\n    ruleSelectorNilUsesHelmValues: false\nalertmanager:\n  alertmanagerSpec:\n    resources:\n      requests: { cpu: 50m, memory: 64Mi }\n      limits:   { cpu: 200m, memory: 128Mi }\n  config:\n    route:\n      receiver: 'default'\n      group_by: ['alertname', 'namespace']\n      group_wait: 30s\n      group_interval: 5m\n      repeat_interval: 12h\n      routes:\n        - matchers:\n            - severity = \"critical\"\n          receiver: 'critical'\n    receivers:\n      - name: 'default'\n      - name: 'critical'\n        # Stub — swap for a real Slack webhook URL to route critical alerts.\n        # webhook_configs:\n        #   - url: https://hooks.slack.com/services/XXX/YYY/ZZZ\ngrafana:\n  adminPassword: shoplite-admin   # demo-only; put in KV for real use\n  resources:\n    requests: { cpu: 50m, memory: 128Mi }\n    limits:   { cpu: 300m, memory: 384Mi }\n  sidecar:\n    dashboards:\n      enabled: true\n      label: grafana_dashboard\n      labelValue: \"1\"\n  persistence:\n    enabled: false\n"},"repoURL":"https://prometheus-community.github.io/helm-charts","targetRevision":"65.5.0"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T06:56:07Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 478
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: kube-prometheus-stack
+    namespace: argocd
+    resourceVersion: "1198681"
+    uid: fddb3fc4-dabc-447c-86ef-af473798427f
+  spec:
+    destination:
+      namespace: monitoring
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: kube-prometheus-stack
+      helm:
+        releaseName: kube-prometheus-stack
+        values: |
+          fullnameOverride: kps
+          prometheus:
+            prometheusSpec:
+              retention: 7d
+              resources:
+                requests: { cpu: 200m, memory: 512Mi }
+                limits:   { cpu: 1,     memory: 1Gi }
+              # Pick up ServiceMonitors from ANY namespace, not just monitoring.
+              serviceMonitorSelectorNilUsesHelmValues: false
+              podMonitorSelectorNilUsesHelmValues: false
+              ruleSelectorNilUsesHelmValues: false
+          alertmanager:
+            alertmanagerSpec:
+              resources:
+                requests: { cpu: 50m, memory: 64Mi }
+                limits:   { cpu: 200m, memory: 128Mi }
+            config:
+              route:
+                receiver: 'default'
+                group_by: ['alertname', 'namespace']
+                group_wait: 30s
+                group_interval: 5m
+                repeat_interval: 12h
+                routes:
+                  - matchers:
+                      - severity = "critical"
+                    receiver: 'critical'
+              receivers:
+                - name: 'default'
+                - name: 'critical'
+                  # Stub — swap for a real Slack webhook URL to route critical alerts.
+                  # webhook_configs:
+                  #   - url: https://hooks.slack.com/services/XXX/YYY/ZZZ
+          grafana:
+            adminPassword: shoplite-admin   # demo-only; put in KV for real use
+            resources:
+              requests: { cpu: 50m, memory: 128Mi }
+              limits:   { cpu: 300m, memory: 384Mi }
+            sidecar:
+              dashboards:
+                enabled: true
+                label: grafana_dashboard
+                labelValue: "1"
+            persistence:
+              enabled: false
+      repoURL: https://prometheus-community.github.io/helm-charts
+      targetRevision: 65.5.0
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:46:37Z"
+      message: 'Failed to compare desired state to live state: failed to calculate
+        diff: error calculating structured merge diff: error building typed value
+        from live resource: .status.terminatingReplicas: field not declared in schema'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    reconciledAt: "2026-10-24T21:56:22Z"
+    sync:
+      comparedTo:
+        destination:
+          namespace: monitoring
+          server: https://kubernetes.default.svc
+        source:
+          chart: kube-prometheus-stack
+          helm:
+            releaseName: kube-prometheus-stack
+            values: |
+              fullnameOverride: kps
+              prometheus:
+                prometheusSpec:
+                  retention: 7d
+                  resources:
+                    requests: { cpu: 200m, memory: 512Mi }
+                    limits:   { cpu: 1,     memory: 1Gi }
+                  # Pick up ServiceMonitors from ANY namespace, not just monitoring.
+                  serviceMonitorSelectorNilUsesHelmValues: false
+                  podMonitorSelectorNilUsesHelmValues: false
+                  ruleSelectorNilUsesHelmValues: false
+              alertmanager:
+                alertmanagerSpec:
+                  resources:
+                    requests: { cpu: 50m, memory: 64Mi }
+                    limits:   { cpu: 200m, memory: 128Mi }
+                config:
+                  route:
+                    receiver: 'default'
+                    group_by: ['alertname', 'namespace']
+                    group_wait: 30s
+                    group_interval: 5m
+                    repeat_interval: 12h
+                    routes:
+                      - matchers:
+                          - severity = "critical"
+                        receiver: 'critical'
+                  receivers:
+                    - name: 'default'
+                    - name: 'critical'
+                      # Stub — swap for a real Slack webhook URL to route critical alerts.
+                      # webhook_configs:
+                      #   - url: https://hooks.slack.com/services/XXX/YYY/ZZZ
+              grafana:
+                adminPassword: shoplite-admin   # demo-only; put in KV for real use
+                resources:
+                  requests: { cpu: 50m, memory: 128Mi }
+                  limits:   { cpu: 300m, memory: 384Mi }
+                sidecar:
+                  dashboards:
+                    enabled: true
+                    label: grafana_dashboard
+                    labelValue: "1"
+                persistence:
+                  enabled: false
+          repoURL: https://prometheus-community.github.io/helm-charts
+          targetRevision: 65.5.0
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"kyverno","namespace":"argocd"},"spec":{"destination":{"namespace":"kyverno","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"kyverno","helm":{"releaseName":"kyverno","values":"admissionController:\n  replicas: 1\n  resources:\n    requests: { cpu: 100m, memory: 128Mi }\n    limits:   { cpu: 500m, memory: 384Mi }\nbackgroundController:\n  replicas: 1\nreportsController:\n  replicas: 1\ncleanupController:\n  replicas: 1\n"},"repoURL":"https://kyverno.github.io/kyverno","targetRevision":"3.3.4"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T05:44:16Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    - post-delete-finalizer.argocd.argoproj.io
+    - post-delete-finalizer.argocd.argoproj.io/cleanup
+    generation: 522
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: kyverno
+    namespace: argocd
+    resourceVersion: "1235890"
+    uid: 0b4883da-3742-45ff-809a-8fbf40c217ff
+  spec:
+    destination:
+      namespace: kyverno
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: kyverno
+      helm:
+        releaseName: kyverno
+        values: |
+          admissionController:
+            replicas: 1
+            resources:
+              requests: { cpu: 100m, memory: 128Mi }
+              limits:   { cpu: 500m, memory: 384Mi }
+          backgroundController:
+            replicas: 1
+          reportsController:
+            replicas: 1
+          cleanupController:
+            replicas: 1
+      repoURL: https://kyverno.github.io/kyverno
+      targetRevision: 3.3.4
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:30:21Z"
+      message: 'Failed to compare desired state to live state: failed to calculate
+        diff: error calculating structured merge diff: error building typed value
+        from live resource: .status.terminatingReplicas: field not declared in schema'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    operationState:
+      finishedAt: "2026-10-24T05:49:47Z"
+      message: 'ComparisonError: Failed to load target state: failed to generate manifest
+        for source 1 of 1: rpc error: code = Unknown desc = invalid revision ''HEAD'':
+        improper constraint: HEAD'
+      operation:
+        initiatedBy: {}
+        retry: {}
+        sync:
+          revision: HEAD
+      phase: Error
+      startedAt: "2026-10-24T05:49:47Z"
+      syncResult:
+        revision: ""
+        source:
+          chart: kyverno
+          helm:
+            releaseName: kyverno
+            values: |
+              admissionController:
+                replicas: 1
+                resources:
+                  requests: { cpu: 100m, memory: 128Mi }
+                  limits:   { cpu: 500m, memory: 384Mi }
+              backgroundController:
+                replicas: 1
+              reportsController:
+                replicas: 1
+              cleanupController:
+                replicas: 1
+          repoURL: https://kyverno.github.io/kyverno
+          targetRevision: 3.3.4
+    reconciledAt: "2026-10-25T00:00:30Z"
+    resources:
+    - kind: ConfigMap
+      name: kyverno
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - kind: ConfigMap
+      name: kyverno-metrics
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-background-controller-metrics
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-cleanup-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-cleanup-controller-metrics
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-reports-controller-metrics
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-svc
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: kyverno-svc-metrics
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: kyverno-admission-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: kyverno-background-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: kyverno-cleanup-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - kind: ServiceAccount
+      name: kyverno-reports-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: cleanuppolicies.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clustercleanuppolicies.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusterephemeralreports.reports.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusterpolicies.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: clusterpolicyreports.wgpolicyk8s.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: ephemeralreports.reports.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: globalcontextentries.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: policies.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: policyexceptions.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: policyreports.wgpolicyk8s.io
+      status: Unknown
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: updaterequests.kyverno.io
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: kyverno-admission-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: kyverno-background-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: kyverno-cleanup-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: kyverno-reports-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:admission-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:admission-controller:core
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:background-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:background-controller:core
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:cleanup-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:cleanup-controller:core
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:admin:policies
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:admin:policyreports
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:admin:reports
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:admin:updaterequests
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:view:policies
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:view:policyreports
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:view:reports
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:rbac:view:updaterequests
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:reports-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: kyverno:reports-controller:core
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:admission-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:admission-controller:view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:background-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:background-controller:view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:cleanup-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:reports-controller
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: kyverno:reports-controller:view
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: kyverno:admission-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: kyverno:background-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: kyverno:cleanup-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: kyverno:reports-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: kyverno:admission-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: kyverno:background-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: kyverno:cleanup-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+      name: kyverno:reports-controller
+      namespace: kyverno
+      status: Unknown
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - ghcr.io/kyverno/background-controller:v1.13.2
+      - ghcr.io/kyverno/cleanup-controller:v1.13.2
+      - ghcr.io/kyverno/kyverno:v1.13.2
+      - ghcr.io/kyverno/kyvernopre:v1.13.2
+      - ghcr.io/kyverno/reports-controller:v1.13.2
+    sync:
+      comparedTo:
+        destination:
+          namespace: kyverno
+          server: https://kubernetes.default.svc
+        source:
+          chart: kyverno
+          helm:
+            releaseName: kyverno
+            values: |
+              admissionController:
+                replicas: 1
+                resources:
+                  requests: { cpu: 100m, memory: 128Mi }
+                  limits:   { cpu: 500m, memory: 384Mi }
+              backgroundController:
+                replicas: 1
+              reportsController:
+                replicas: 1
+              cleanupController:
+                replicas: 1
+          repoURL: https://kyverno.github.io/kyverno
+          targetRevision: 3.3.4
+      revision: 3.3.4
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"kyverno-policies","namespace":"argocd"},"spec":{"destination":{"namespace":"kyverno","server":"https://kubernetes.default.svc"},"project":"default","source":{"directory":{"recurse":true},"path":"gitops/platform/kyverno-policies","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T05:44:16Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 1961
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: kyverno-policies
+    namespace: argocd
+    resourceVersion: "1239647"
+    uid: 231ff980-98bf-4e70-af3c-cab55468f956
+  operation:
+    initiatedBy:
+      automated: true
+    retry:
+      limit: 5
+    sync:
+      prune: true
+      resources:
+      - group: kyverno.io
+        kind: ClusterPolicy
+        name: verify-shoplite-images
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      syncOptions:
+      - ServerSideApply=true
+  spec:
+    destination:
+      namespace: kyverno
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      directory:
+        jsonnet: {}
+        recurse: true
+      path: gitops/platform/kyverno-policies
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T15:55:22Z"
+      deployedAt: "2026-10-24T15:55:25Z"
+      id: 9
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T16:21:28Z"
+      deployedAt: "2026-10-24T16:21:29Z"
+      id: 10
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T17:40:22Z"
+      deployedAt: "2026-10-24T17:40:25Z"
+      id: 11
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:23:40Z"
+      deployedAt: "2026-10-24T19:23:44Z"
+      id: 12
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:35:45Z"
+      deployedAt: "2026-10-24T19:35:48Z"
+      id: 13
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:41:41Z"
+      deployedAt: "2026-10-24T19:41:43Z"
+      id: 14
+      initiatedBy:
+        automated: true
+      revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T21:56:27Z"
+      deployedAt: "2026-10-24T21:56:30Z"
+      id: 15
+      initiatedBy:
+        automated: true
+      revision: 35c55105000cce1f1732c756c5adc320be0d9702
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:16:32Z"
+      deployedAt: "2026-10-24T22:16:34Z"
+      id: 16
+      initiatedBy:
+        automated: true
+      revision: 5959d9b94429ebbc895b064959fee618012fff97
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:35:49Z"
+      deployedAt: "2026-10-24T22:41:08Z"
+      id: 17
+      initiatedBy:
+        automated: true
+      revision: b57a6d69678ef0fe7e1e2a391bb1acaf19459299
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T23:11:51Z"
+      deployedAt: "2026-10-24T23:13:25Z"
+      id: 18
+      initiatedBy:
+        automated: true
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform/kyverno-policies
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          resources:
+          - group: kyverno.io
+            kind: ClusterPolicy
+            name: verify-shoplite-images
+          revision: 8e881b3c83533090c190b7569fead8208d33a900
+          syncOptions:
+          - ServerSideApply=true
+      phase: Running
+      startedAt: "2026-10-25T00:08:15Z"
+    reconciledAt: "2026-10-25T00:08:15Z"
+    resources:
+    - group: kyverno.io
+      kind: ClusterPolicy
+      name: verify-shoplite-images
+      status: OutOfSync
+      version: v1
+    sourceType: Directory
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: kyverno
+          server: https://kubernetes.default.svc
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/platform/kyverno-policies
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: OutOfSync
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"loki","namespace":"argocd"},"spec":{"destination":{"namespace":"monitoring","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"loki","helm":{"releaseName":"loki","values":"deploymentMode: SingleBinary\nloki:\n  auth_enabled: false\n  commonConfig:\n    replication_factor: 1\n  storage:\n    type: filesystem\n  schemaConfig:\n    configs:\n      - from: \"2024-01-01\"\n        store: tsdb\n        object_store: filesystem\n        schema: v13\n        index: { prefix: index_, period: 24h }\nsingleBinary:\n  replicas: 1\n  persistence:\n    enabled: false\n  resources:\n    requests: { cpu: 100m, memory: 256Mi }\n    limits:   { cpu: 500m, memory: 512Mi }\nchunksCache:\n  enabled: false\nresultsCache:\n  enabled: false\nread:    { replicas: 0 }\nwrite:   { replicas: 0 }\nbackend: { replicas: 0 }\ngateway:\n  enabled: false\ntest:\n  enabled: false\nlokiCanary:\n  enabled: false\n"},"repoURL":"https://grafana.github.io/helm-charts","targetRevision":"6.18.0"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T19:42:01Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 85
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: loki
+    namespace: argocd
+    resourceVersion: "1239582"
+    uid: 413bba52-0bdd-4cc1-97ac-9a75525373e7
+  spec:
+    destination:
+      namespace: monitoring
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: loki
+      helm:
+        releaseName: loki
+        values: |
+          deploymentMode: SingleBinary
+          loki:
+            auth_enabled: false
+            commonConfig:
+              replication_factor: 1
+            storage:
+              type: filesystem
+            schemaConfig:
+              configs:
+                - from: "2024-01-01"
+                  store: tsdb
+                  object_store: filesystem
+                  schema: v13
+                  index: { prefix: index_, period: 24h }
+          singleBinary:
+            replicas: 1
+            persistence:
+              enabled: false
+            resources:
+              requests: { cpu: 100m, memory: 256Mi }
+              limits:   { cpu: 500m, memory: 512Mi }
+          chunksCache:
+            enabled: false
+          resultsCache:
+            enabled: false
+          read:    { replicas: 0 }
+          write:   { replicas: 0 }
+          backend: { replicas: 0 }
+          gateway:
+            enabled: false
+          test:
+            enabled: false
+          lokiCanary:
+            enabled: false
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 6.18.0
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T22:35:45Z"
+      deployedAt: "2026-10-24T23:08:13Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 6.18.0
+      source:
+        chart: loki
+        helm:
+          releaseName: loki
+          values: |
+            deploymentMode: SingleBinary
+            loki:
+              auth_enabled: false
+              commonConfig:
+                replication_factor: 1
+              storage:
+                type: filesystem
+              schemaConfig:
+                configs:
+                  - from: "2024-01-01"
+                    store: tsdb
+                    object_store: filesystem
+                    schema: v13
+                    index: { prefix: index_, period: 24h }
+            singleBinary:
+              replicas: 1
+              persistence:
+                enabled: false
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits:   { cpu: 500m, memory: 512Mi }
+            chunksCache:
+              enabled: false
+            resultsCache:
+              enabled: false
+            read:    { replicas: 0 }
+            write:   { replicas: 0 }
+            backend: { replicas: 0 }
+            gateway:
+              enabled: false
+            test:
+              enabled: false
+            lokiCanary:
+              enabled: false
+        repoURL: https://grafana.github.io/helm-charts
+        targetRevision: 6.18.0
+    operationState:
+      finishedAt: "2026-10-24T23:08:13Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 6.18.0
+          syncOptions:
+          - ServerSideApply=true
+      phase: Succeeded
+      retryCount: 4
+      startedAt: "2026-10-24T22:35:45Z"
+      syncResult:
+        resources:
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/loki serverside-applied
+          name: loki
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ConfigMap
+          message: configmap/loki serverside-applied
+          name: loki
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ConfigMap
+          message: configmap/loki-runtime serverside-applied
+          name: loki-runtime
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRole
+          message: clusterrole.rbac.authorization.k8s.io/loki-clusterrole reconciled.
+            reconciliation required update. clusterrole.rbac.authorization.k8s.io/loki-clusterrole
+            serverside-applied
+          name: loki-clusterrole
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: rbac.authorization.k8s.io
+          hookPhase: Running
+          kind: ClusterRoleBinding
+          message: clusterrolebinding.rbac.authorization.k8s.io/loki-clusterrolebinding
+            reconciled. reconciliation required update. clusterrolebinding.rbac.authorization.k8s.io/loki-clusterrolebinding
+            serverside-applied
+          name: loki-clusterrolebinding
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/loki serverside-applied
+          name: loki
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/loki-headless serverside-applied
+          name: loki-headless
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/loki-memberlist serverside-applied
+          name: loki-memberlist
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: StatefulSet
+          message: statefulset.apps/loki serverside-applied
+          name: loki
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: 6.18.0
+        source:
+          chart: loki
+          helm:
+            releaseName: loki
+            values: |
+              deploymentMode: SingleBinary
+              loki:
+                auth_enabled: false
+                commonConfig:
+                  replication_factor: 1
+                storage:
+                  type: filesystem
+                schemaConfig:
+                  configs:
+                    - from: "2024-01-01"
+                      store: tsdb
+                      object_store: filesystem
+                      schema: v13
+                      index: { prefix: index_, period: 24h }
+              singleBinary:
+                replicas: 1
+                persistence:
+                  enabled: false
+                resources:
+                  requests: { cpu: 100m, memory: 256Mi }
+                  limits:   { cpu: 500m, memory: 512Mi }
+              chunksCache:
+                enabled: false
+              resultsCache:
+                enabled: false
+              read:    { replicas: 0 }
+              write:   { replicas: 0 }
+              backend: { replicas: 0 }
+              gateway:
+                enabled: false
+              test:
+                enabled: false
+              lokiCanary:
+                enabled: false
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 6.18.0
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: loki
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - kind: ConfigMap
+      name: loki-runtime
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: loki
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: loki-headless
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: loki-memberlist
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - kind: ServiceAccount
+      name: loki
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: apps
+      health:
+        message: 'partitioned roll out complete: 1 new pods have been updated...'
+        status: Healthy
+      kind: StatefulSet
+      name: loki
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: loki-clusterrole
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: loki-clusterrolebinding
+      status: Synced
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - docker.io/grafana/loki:3.2.0
+      - kiwigrid/k8s-sidecar:1.27.5
+    sync:
+      comparedTo:
+        destination:
+          namespace: monitoring
+          server: https://kubernetes.default.svc
+        source:
+          chart: loki
+          helm:
+            releaseName: loki
+            values: |
+              deploymentMode: SingleBinary
+              loki:
+                auth_enabled: false
+                commonConfig:
+                  replication_factor: 1
+                storage:
+                  type: filesystem
+                schemaConfig:
+                  configs:
+                    - from: "2024-01-01"
+                      store: tsdb
+                      object_store: filesystem
+                      schema: v13
+                      index: { prefix: index_, period: 24h }
+              singleBinary:
+                replicas: 1
+                persistence:
+                  enabled: false
+                resources:
+                  requests: { cpu: 100m, memory: 256Mi }
+                  limits:   { cpu: 500m, memory: 512Mi }
+              chunksCache:
+                enabled: false
+              resultsCache:
+                enabled: false
+              read:    { replicas: 0 }
+              write:   { replicas: 0 }
+              backend: { replicas: 0 }
+              gateway:
+                enabled: false
+              test:
+                enabled: false
+              lokiCanary:
+                enabled: false
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 6.18.0
+      revision: 6.18.0
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"redis-prod","namespace":"argocd"},"spec":{"destination":{"namespace":"shoplite-prod","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"redis","helm":{"releaseName":"redis","values":"architecture: standalone\nauth:\n  enabled: false\nmaster:\n  persistence:\n    enabled: false\n  resources:\n    requests:\n      cpu: 100m\n      memory: 128Mi\n    limits:\n      cpu: 500m\n      memory: 256Mi\n"},"repoURL":"https://charts.bitnami.com/bitnami","targetRevision":"20.6.0"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:53Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 1572
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: redis-prod
+    namespace: argocd
+    resourceVersion: "1172759"
+    uid: b388cc8a-0d20-4e6a-b5e3-fdf9f53487a7
+  spec:
+    destination:
+      namespace: shoplite-prod
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: redis
+      helm:
+        releaseName: redis
+        values: |
+          architecture: standalone
+          auth:
+            enabled: false
+          master:
+            persistence:
+              enabled: false
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 256Mi
+      repoURL: https://charts.bitnami.com/bitnami
+      targetRevision: 20.6.0
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T21:56:22Z"
+      message: 'Failed to load target state: failed to generate manifest for source
+        1 of 1: rpc error: code = Unavailable desc = error reading from server: EOF'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    reconciledAt: "2026-10-24T21:56:22Z"
+    sync:
+      comparedTo:
+        destination:
+          namespace: shoplite-prod
+          server: https://kubernetes.default.svc
+        source:
+          chart: redis
+          helm:
+            releaseName: redis
+            values: |
+              architecture: standalone
+              auth:
+                enabled: false
+              master:
+                persistence:
+                  enabled: false
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 256Mi
+          repoURL: https://charts.bitnami.com/bitnami
+          targetRevision: 20.6.0
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"redis-staging","namespace":"argocd"},"spec":{"destination":{"namespace":"shoplite-staging","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"redis","helm":{"releaseName":"redis","values":"architecture: standalone\nauth:\n  enabled: false\nmaster:\n  persistence:\n    enabled: false\n  resources:\n    requests:\n      cpu: 50m\n      memory: 64Mi\n    limits:\n      cpu: 200m\n      memory: 128Mi\n"},"repoURL":"https://charts.bitnami.com/bitnami","targetRevision":"20.6.0"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:54Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 1575
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: redis-staging
+    namespace: argocd
+    resourceVersion: "1172764"
+    uid: c6e87144-f27c-4217-b060-847610c859e6
+  spec:
+    destination:
+      namespace: shoplite-staging
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: redis
+      helm:
+        releaseName: redis
+        values: |
+          architecture: standalone
+          auth:
+            enabled: false
+          master:
+            persistence:
+              enabled: false
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 128Mi
+      repoURL: https://charts.bitnami.com/bitnami
+      targetRevision: 20.6.0
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T21:56:22Z"
+      message: 'Failed to load target state: failed to generate manifest for source
+        1 of 1: rpc error: code = Unavailable desc = error reading from server: EOF'
+      type: ComparisonError
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    reconciledAt: "2026-10-24T21:56:22Z"
+    sync:
+      comparedTo:
+        destination:
+          namespace: shoplite-staging
+          server: https://kubernetes.default.svc
+        source:
+          chart: redis
+          helm:
+            releaseName: redis
+            values: |
+              architecture: standalone
+              auth:
+                enabled: false
+              master:
+                persistence:
+                  enabled: false
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+                  limits:
+                    cpu: 200m
+                    memory: 128Mi
+          repoURL: https://charts.bitnami.com/bitnami
+          targetRevision: 20.6.0
+      status: Unknown
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"name":"root-platform","namespace":"argocd"},"spec":{"destination":{"namespace":"argocd","server":"https://kubernetes.default.svc"},"project":"default","source":{"directory":{"recurse":true},"path":"gitops/platform","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true"]}}}
+    creationTimestamp: "2026-10-23T02:10:00Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 3765
+    name: root-platform
+    namespace: argocd
+    resourceVersion: "1239697"
+    uid: 69df92f2-b18e-432c-a3bf-e2a51085ecd2
+  operation:
+    initiatedBy:
+      automated: true
+    retry:
+      limit: 5
+    sync:
+      prune: true
+      revision: 5959d9b94429ebbc895b064959fee618012fff97
+      syncOptions:
+      - CreateNamespace=true
+  spec:
+    destination:
+      namespace: argocd
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      directory:
+        jsonnet: {}
+        recurse: true
+      path: gitops/platform
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+  status:
+    conditions:
+    - lastTransitionTime: "2026-10-24T22:41:09Z"
+      message: ClusterIssuer/letsencrypt-staging is part of applications argocd/root-platform
+        and cert-manager-issuer
+      type: SharedResourceWarning
+    - lastTransitionTime: "2026-10-25T00:08:21Z"
+      message: ClusterPolicy/verify-shoplite-images is part of applications argocd/root-platform
+        and kyverno-policies
+      type: SharedResourceWarning
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T03:01:39Z"
+      deployedAt: "2026-10-24T03:01:46Z"
+      id: 15
+      initiatedBy:
+        automated: true
+      revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:37:38Z"
+      deployedAt: "2026-10-24T05:37:43Z"
+      id: 16
+      initiatedBy:
+        automated: true
+      revision: e72e21582b72392c4719631ff5a74b2d886f211a
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T06:13:39Z"
+      deployedAt: "2026-10-24T06:13:46Z"
+      id: 17
+      initiatedBy:
+        automated: true
+      revision: cf59cbdda23773595f44d1bc3833cfe12b1fd465
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T06:55:57Z"
+      deployedAt: "2026-10-24T07:01:35Z"
+      id: 18
+      initiatedBy:
+        automated: true
+      revision: d4fd9fe67fa4970adee896ca22b29e377a08be86
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T13:30:40Z"
+      deployedAt: "2026-10-24T13:30:50Z"
+      id: 19
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T17:21:38Z"
+      deployedAt: "2026-10-24T17:27:17Z"
+      id: 20
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T18:10:30Z"
+      deployedAt: "2026-10-24T18:16:38Z"
+      id: 21
+      initiatedBy:
+        automated: true
+      revision: 85a21fe3182c9556e3494255d440cdd863b79ebc
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T19:41:42Z"
+      deployedAt: "2026-10-24T19:42:01Z"
+      id: 22
+      initiatedBy:
+        automated: true
+      revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T20:51:19Z"
+      deployedAt: "2026-10-24T21:02:34Z"
+      id: 23
+      initiatedBy:
+        automated: true
+      revision: af3f30d362f565f8baf1b0da8cc424e618666e6c
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:08:08Z"
+      deployedAt: "2026-10-24T22:16:31Z"
+      id: 24
+      initiatedBy:
+        automated: true
+      revision: 35c55105000cce1f1732c756c5adc320be0d9702
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/platform
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      message: 'ComparisonError: Failed to load target state: failed to generate manifest
+        for source 1 of 1: rpc error: code = Unavailable desc = connection error:
+        desc = "transport: Error while dialing: dial tcp 10.0.178.220:8081: connect:
+        connection refused". Retrying attempt #4 at 11:07PM.'
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 5959d9b94429ebbc895b064959fee618012fff97
+          syncOptions:
+          - CreateNamespace=true
+      phase: Running
+      retryCount: 4
+      startedAt: "2026-10-24T22:16:33Z"
+      syncResult:
+        revision: ""
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/platform
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: tempo-datasource
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: argoproj.io
+      kind: Application
+      name: alloy
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: argo-rollouts
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: cert-manager
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: cert-manager-issuer
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: external-secrets
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: ingress-nginx
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: kube-prometheus-stack
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: kyverno
+      namespace: argocd
+      status: OutOfSync
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: kyverno-policies
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: loki
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: redis-prod
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: redis-staging
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      kind: Application
+      name: tempo
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    - group: cert-manager.io
+      health:
+        message: The ACME account was registered with the ACME server
+        status: Healthy
+      kind: ClusterIssuer
+      name: letsencrypt-staging
+      status: OutOfSync
+      version: v1
+    - group: kyverno.io
+      kind: ClusterPolicy
+      name: verify-shoplite-images
+      status: OutOfSync
+      version: v1
+    sourceType: Directory
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: argocd
+          server: https://kubernetes.default.svc
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/platform
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: OutOfSync
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"name":"root-prod","namespace":"argocd"},"spec":{"destination":{"namespace":"argocd","server":"https://kubernetes.default.svc"},"project":"default","source":{"directory":{"recurse":true},"path":"gitops/prod","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true"]}}}
+    creationTimestamp: "2026-10-23T02:10:01Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 742
+    name: root-prod
+    namespace: argocd
+    resourceVersion: "1239618"
+    uid: 91fb9172-1626-4d58-a34d-17f722445407
+  spec:
+    destination:
+      namespace: argocd
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      directory:
+        jsonnet: {}
+        recurse: true
+      path: gitops/prod
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-23T03:00:52Z"
+      deployedAt: "2026-10-23T03:00:54Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 38f1a9229438628942521a259ef26d2ae5466804
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/prod
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      finishedAt: "2026-10-23T03:00:54Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 38f1a9229438628942521a259ef26d2ae5466804
+          syncOptions:
+          - CreateNamespace=true
+      phase: Succeeded
+      startedAt: "2026-10-23T03:00:52Z"
+      syncResult:
+        resources:
+        - group: argoproj.io
+          hookPhase: Running
+          kind: Application
+          message: application.argoproj.io/shoplite-prod created
+          name: shoplite-prod
+          namespace: argocd
+          status: Synced
+          syncPhase: Sync
+          version: v1alpha1
+        revision: 38f1a9229438628942521a259ef26d2ae5466804
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/prod
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - group: argoproj.io
+      kind: Application
+      name: shoplite-prod
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    sourceType: Directory
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: argocd
+          server: https://kubernetes.default.svc
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/prod
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"name":"root-staging","namespace":"argocd"},"spec":{"destination":{"namespace":"argocd","server":"https://kubernetes.default.svc"},"project":"default","source":{"directory":{"recurse":true},"path":"gitops/staging","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true"]}}}
+    creationTimestamp: "2026-10-23T02:10:00Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 729
+    name: root-staging
+    namespace: argocd
+    resourceVersion: "1239608"
+    uid: 244852c3-194f-4753-9d23-2bc92b0f971b
+  spec:
+    destination:
+      namespace: argocd
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      directory:
+        jsonnet: {}
+        recurse: true
+      path: gitops/staging
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - CreateNamespace=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Progressing
+    history:
+    - deployStartedAt: "2026-10-23T03:00:51Z"
+      deployedAt: "2026-10-23T03:00:53Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 38f1a9229438628942521a259ef26d2ae5466804
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/staging
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T23:48:26Z"
+      deployedAt: "2026-10-24T23:48:43Z"
+      id: 1
+      initiatedBy:
+        automated: true
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      source:
+        directory:
+          jsonnet: {}
+          recurse: true
+        path: gitops/staging
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      finishedAt: "2026-10-24T23:48:43Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 8e881b3c83533090c190b7569fead8208d33a900
+          syncOptions:
+          - CreateNamespace=true
+      phase: Succeeded
+      startedAt: "2026-10-24T23:48:26Z"
+      syncResult:
+        resources:
+        - group: argoproj.io
+          hookPhase: Running
+          kind: Application
+          message: application.argoproj.io/shoplite-staging created
+          name: shoplite-staging
+          namespace: argocd
+          status: Synced
+          syncPhase: Sync
+          version: v1alpha1
+        revision: 8e881b3c83533090c190b7569fead8208d33a900
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/staging
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - group: argoproj.io
+      health:
+        message: Pending deletion
+        status: Progressing
+      kind: Application
+      name: shoplite-staging
+      namespace: argocd
+      status: Synced
+      version: v1alpha1
+    sourceType: Directory
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: argocd
+          server: https://kubernetes.default.svc
+        source:
+          directory:
+            jsonnet: {}
+            recurse: true
+          path: gitops/staging
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: Synced
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-prod"},"name":"shoplite-prod","namespace":"argocd"},"spec":{"destination":{"namespace":"shoplite-prod","server":"https://kubernetes.default.svc"},"project":"default","source":{"helm":{"parameters":[{"name":"api.image.tag","value":"0.1.0"},{"name":"worker.image.tag","value":"0.1.0"}],"releaseName":"shoplite","valueFiles":["values-prod.yaml"]},"path":"charts/shoplite","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"managedNamespaceMetadata":{"labels":{"pod-security.kubernetes.io/audit":"restricted","pod-security.kubernetes.io/enforce":"restricted","pod-security.kubernetes.io/warn":"restricted"}},"retry":{"backoff":{"duration":"10s","factor":2,"maxDuration":"2m"},"limit":3},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-23T03:00:54Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 4013
+    labels:
+      argocd.argoproj.io/instance: root-prod
+    name: shoplite-prod
+    namespace: argocd
+    resourceVersion: "1239623"
+    uid: b168374f-235f-4055-b00a-8207b96a77cb
+  operation:
+    initiatedBy:
+      automated: true
+    retry:
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
+      limit: 3
+    sync:
+      prune: true
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  spec:
+    destination:
+      namespace: shoplite-prod
+      server: https://kubernetes.default.svc
+    ignoreDifferences:
+    - group: apps
+      jsonPointers:
+      - /status
+      kind: Deployment
+      managedFieldsManagers:
+      - kube-controller-manager
+    project: default
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-prod.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      managedNamespaceMetadata:
+        labels:
+          pod-security.kubernetes.io/audit: restricted
+          pod-security.kubernetes.io/enforce: restricted
+          pod-security.kubernetes.io/warn: restricted
+      retry:
+        backoff:
+          duration: 10s
+          factor: 2
+          maxDuration: 2m
+        limit: 3
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Degraded
+    history:
+    - deployStartedAt: "2026-10-24T04:25:37Z"
+      deployedAt: "2026-10-24T04:25:45Z"
+      id: 4
+      initiatedBy:
+        automated: true
+      revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T04:37:40Z"
+      deployedAt: "2026-10-24T04:37:48Z"
+      id: 5
+      initiatedBy:
+        automated: true
+      revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:01:16Z"
+      deployedAt: "2026-10-24T05:01:22Z"
+      id: 6
+      initiatedBy:
+        automated: true
+      revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:19:40Z"
+      deployedAt: "2026-10-24T05:19:48Z"
+      id: 7
+      initiatedBy:
+        automated: true
+      revision: 65225f0ecb35664ab255f694ef9c11d0ccc41b21
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:37:12Z"
+      deployedAt: "2026-10-24T05:37:17Z"
+      id: 8
+      initiatedBy:
+        automated: true
+      revision: e72e21582b72392c4719631ff5a74b2d886f211a
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:43:35Z"
+      deployedAt: "2026-10-24T05:43:41Z"
+      id: 9
+      initiatedBy:
+        automated: true
+      revision: cf59cbdda23773595f44d1bc3833cfe12b1fd465
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:49:37Z"
+      deployedAt: "2026-10-24T05:49:43Z"
+      id: 10
+      initiatedBy:
+        automated: true
+      revision: cf59cbdda23773595f44d1bc3833cfe12b1fd465
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T05:55:39Z"
+      deployedAt: "2026-10-24T05:55:45Z"
+      id: 11
+      initiatedBy:
+        automated: true
+      revision: cf59cbdda23773595f44d1bc3833cfe12b1fd465
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:08:06Z"
+      deployedAt: "2026-10-24T22:09:37Z"
+      id: 12
+      initiatedBy:
+        automated: true
+      revision: 35c55105000cce1f1732c756c5adc320be0d9702
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    - deployStartedAt: "2026-10-24T22:35:51Z"
+      deployedAt: "2026-10-24T23:07:57Z"
+      id: 13
+      initiatedBy:
+        automated: true
+      revision: b57a6d69678ef0fe7e1e2a391bb1acaf19459299
+      source:
+        helm:
+          parameters:
+          - name: api.image.tag
+            value: 0.1.0
+          - name: worker.image.tag
+            value: 0.1.0
+          releaseName: shoplite
+          valueFiles:
+          - values-prod.yaml
+        path: charts/shoplite
+        repoURL: https://github.com/Pavan-AIML/st_repo.git
+        targetRevision: main
+    operationState:
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 2m
+          limit: 3
+        sync:
+          prune: true
+          revision: 8e881b3c83533090c190b7569fead8208d33a900
+          syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+      phase: Running
+      startedAt: "2026-10-24T23:13:33Z"
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - health:
+        status: Healthy
+      kind: Service
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: shoplite-shoplite-api-canary
+      namespace: shoplite-prod
+      status: OutOfSync
+      version: v1
+    - kind: ServiceAccount
+      name: shoplite
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: apps
+      health:
+        message: Pending deletion
+        status: Progressing
+      kind: Deployment
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      requiresPruning: true
+      status: OutOfSync
+      version: v1
+    - group: apps
+      health:
+        status: Healthy
+      kind: Deployment
+      name: shoplite-shoplite-worker
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: argoproj.io
+      kind: AnalysisTemplate
+      name: shoplite-shoplite-api-error-rate
+      namespace: shoplite-prod
+      status: Synced
+      version: v1alpha1
+    - group: argoproj.io
+      health:
+        message: 'ProgressDeadlineExceeded: ReplicaSet "shoplite-shoplite-api-76599b467d"
+          has timed out progressing.'
+        status: Degraded
+      kind: Rollout
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1alpha1
+    - group: autoscaling
+      health:
+        message: recommended size matches current size
+        status: Healthy
+      kind: HorizontalPodAutoscaler
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v2
+    - group: external-secrets.io
+      health:
+        message: Secret was synced
+        status: Healthy
+      kind: ExternalSecret
+      name: shoplite-secrets
+      namespace: shoplite-prod
+      status: OutOfSync
+      version: v1beta1
+    - group: external-secrets.io
+      health:
+        message: store validated
+        status: Healthy
+      kind: SecretStore
+      name: azure-keyvault
+      namespace: shoplite-prod
+      status: Synced
+      version: v1beta1
+    - group: monitoring.coreos.com
+      kind: PrometheusRule
+      name: shoplite-shoplite-api-slo
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Healthy
+      kind: Ingress
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-api-to-postgres
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-dns-egress
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-egress-tempo
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-ingress-to-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-prometheus-scrape-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-worker-to-postgres
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: allow-worker-to-redis
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: default-deny
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: policy
+      kind: PodDisruptionBudget
+      name: shoplite-shoplite-api
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: policy
+      kind: PodDisruptionBudget
+      name: shoplite-shoplite-worker
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: Role
+      name: developer-readonly
+      namespace: shoplite-prod
+      status: Synced
+      version: v1
+    sourceType: Helm
+    summary:
+      externalURLs:
+      - http://prod.57.174.146.129.nip.io/.well-known/acme-challenge/gv199lyyiZSsp18kNznr3gnfJOZdn5awm54XsjCN-AU
+      - https://prod.57.174.146.129.nip.io/
+      images:
+      - crshoplite.azurecr.io/shoplite-api:0.1.0
+      - crshoplite.azurecr.io/shoplite-api@sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6
+      - crshoplite.azurecr.io/shoplite-worker@sha256:85197c5354734a5f431050d05dfb8e993843c0358b13dff9f75a629ee38b4b32
+      - quay.io/jetstack/cert-manager-acmesolver:v1.16.1
+    sync:
+      comparedTo:
+        destination:
+          namespace: shoplite-prod
+          server: https://kubernetes.default.svc
+        ignoreDifferences:
+        - group: apps
+          jsonPointers:
+          - /status
+          kind: Deployment
+          managedFieldsManagers:
+          - kube-controller-manager
+        source:
+          helm:
+            parameters:
+            - name: api.image.tag
+              value: 0.1.0
+            - name: worker.image.tag
+              value: 0.1.0
+            releaseName: shoplite
+            valueFiles:
+            - values-prod.yaml
+          path: charts/shoplite
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: OutOfSync
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-staging"},"name":"shoplite-staging","namespace":"argocd"},"spec":{"destination":{"namespace":"shoplite-staging","server":"https://kubernetes.default.svc"},"project":"default","source":{"helm":{"parameters":[{"name":"api.image.tag","value":"0.1.0"},{"name":"worker.image.tag","value":"0.1.0"}],"releaseName":"shoplite","valueFiles":["values-staging.yaml"]},"path":"charts/shoplite","repoURL":"https://github.com/Pavan-AIML/st_repo.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"managedNamespaceMetadata":{"labels":{"pod-security.kubernetes.io/audit":"restricted","pod-security.kubernetes.io/enforce":"restricted","pod-security.kubernetes.io/warn":"restricted"}},"retry":{"backoff":{"duration":"10s","factor":2,"maxDuration":"2m"},"limit":3},"syncOptions":["CreateNamespace=true","ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T23:48:43Z"
+    deletionGracePeriodSeconds: 0
+    deletionTimestamp: "2026-10-24T23:56:46Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 10
+    labels:
+      argocd.argoproj.io/instance: root-staging
+    name: shoplite-staging
+    namespace: argocd
+    resourceVersion: "1239613"
+    uid: 3d25a754-1bb1-4431-9052-28785c843832
+  operation:
+    initiatedBy:
+      automated: true
+    retry:
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
+      limit: 3
+    sync:
+      prune: true
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  spec:
+    destination:
+      namespace: shoplite-staging
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      helm:
+        parameters:
+        - name: api.image.tag
+          value: 0.1.0
+        - name: worker.image.tag
+          value: 0.1.0
+        releaseName: shoplite
+        valueFiles:
+        - values-staging.yaml
+      path: charts/shoplite
+      repoURL: https://github.com/Pavan-AIML/st_repo.git
+      targetRevision: main
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      managedNamespaceMetadata:
+        labels:
+          pod-security.kubernetes.io/audit: restricted
+          pod-security.kubernetes.io/enforce: restricted
+          pod-security.kubernetes.io/warn: restricted
+      retry:
+        backoff:
+          duration: 10s
+          factor: 2
+          maxDuration: 2m
+        limit: 3
+      syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Missing
+    operationState:
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 2m
+          limit: 3
+        sync:
+          prune: true
+          revision: 8e881b3c83533090c190b7569fead8208d33a900
+          syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+      phase: Running
+      startedAt: "2026-10-24T23:48:46Z"
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - health:
+        status: Missing
+      kind: Service
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - health:
+        status: Missing
+      kind: Service
+      name: shoplite-shoplite-api-canary
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - health:
+        status: Missing
+      kind: ServiceAccount
+      name: shoplite
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: apps
+      health:
+        status: Missing
+      kind: Deployment
+      name: shoplite-shoplite-worker
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: argoproj.io
+      health:
+        status: Missing
+      kind: AnalysisTemplate
+      name: shoplite-shoplite-api-error-rate
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1alpha1
+    - group: argoproj.io
+      health:
+        status: Missing
+      kind: Rollout
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1alpha1
+    - group: autoscaling
+      health:
+        status: Missing
+      kind: HorizontalPodAutoscaler
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v2
+    - group: external-secrets.io
+      health:
+        status: Missing
+      kind: ExternalSecret
+      name: shoplite-secrets
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1beta1
+    - group: external-secrets.io
+      health:
+        status: Missing
+      kind: SecretStore
+      name: azure-keyvault
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1beta1
+    - group: monitoring.coreos.com
+      health:
+        status: Missing
+      kind: PrometheusRule
+      name: shoplite-shoplite-api-slo
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: monitoring.coreos.com
+      health:
+        status: Missing
+      kind: ServiceMonitor
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: Ingress
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-api-to-postgres
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-dns-egress
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-egress-tempo
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-ingress-to-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-prometheus-scrape-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-worker-to-postgres
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: allow-worker-to-redis
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: networking.k8s.io
+      health:
+        status: Missing
+      kind: NetworkPolicy
+      name: default-deny
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: policy
+      health:
+        status: Missing
+      kind: PodDisruptionBudget
+      name: shoplite-shoplite-api
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    - group: rbac.authorization.k8s.io
+      health:
+        status: Missing
+      kind: Role
+      name: developer-readonly
+      namespace: shoplite-staging
+      status: OutOfSync
+      version: v1
+    sourceType: Helm
+    summary: {}
+    sync:
+      comparedTo:
+        destination:
+          namespace: shoplite-staging
+          server: https://kubernetes.default.svc
+        source:
+          helm:
+            parameters:
+            - name: api.image.tag
+              value: 0.1.0
+            - name: worker.image.tag
+              value: 0.1.0
+            releaseName: shoplite
+            valueFiles:
+            - values-staging.yaml
+          path: charts/shoplite
+          repoURL: https://github.com/Pavan-AIML/st_repo.git
+          targetRevision: main
+      revision: 8e881b3c83533090c190b7569fead8208d33a900
+      status: OutOfSync
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"finalizers":["resources-finalizer.argocd.argoproj.io"],"labels":{"argocd.argoproj.io/instance":"root-platform"},"name":"tempo","namespace":"argocd"},"spec":{"destination":{"namespace":"monitoring","server":"https://kubernetes.default.svc"},"project":"default","source":{"chart":"tempo","helm":{"releaseName":"tempo","values":"tempo:\n  retention: 24h\n  storage:\n    trace:\n      backend: local\n      local:\n        path: /var/tempo/traces\n  receivers:\n    otlp:\n      protocols:\n        http:\n          endpoint: 0.0.0.0:4318\n        grpc:\n          endpoint: 0.0.0.0:4317\n  resources:\n    requests: { cpu: 100m, memory: 256Mi }\n    limits:   { cpu: 500m, memory: 512Mi }\npersistence:\n  enabled: false\nservice:\n  type: ClusterIP\n"},"repoURL":"https://grafana.github.io/helm-charts","targetRevision":"1.14.0"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["ServerSideApply=true"]}}}
+    creationTimestamp: "2026-10-24T19:42:00Z"
+    finalizers:
+    - resources-finalizer.argocd.argoproj.io
+    generation: 87
+    labels:
+      argocd.argoproj.io/instance: root-platform
+    name: tempo
+    namespace: argocd
+    resourceVersion: "1239594"
+    uid: d7519b77-6201-4f08-8669-9b6c91af049b
+  spec:
+    destination:
+      namespace: monitoring
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      chart: tempo
+      helm:
+        releaseName: tempo
+        values: |
+          tempo:
+            retention: 24h
+            storage:
+              trace:
+                backend: local
+                local:
+                  path: /var/tempo/traces
+            receivers:
+              otlp:
+                protocols:
+                  http:
+                    endpoint: 0.0.0.0:4318
+                  grpc:
+                    endpoint: 0.0.0.0:4317
+            resources:
+              requests: { cpu: 100m, memory: 256Mi }
+              limits:   { cpu: 500m, memory: 512Mi }
+          persistence:
+            enabled: false
+          service:
+            type: ClusterIP
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 1.14.0
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+      - ServerSideApply=true
+  status:
+    controllerNamespace: argocd
+    health:
+      status: Healthy
+    history:
+    - deployStartedAt: "2026-10-24T22:35:45Z"
+      deployedAt: "2026-10-24T23:08:09Z"
+      id: 0
+      initiatedBy:
+        automated: true
+      revision: 1.14.0
+      source:
+        chart: tempo
+        helm:
+          releaseName: tempo
+          values: |
+            tempo:
+              retention: 24h
+              storage:
+                trace:
+                  backend: local
+                  local:
+                    path: /var/tempo/traces
+              receivers:
+                otlp:
+                  protocols:
+                    http:
+                      endpoint: 0.0.0.0:4318
+                    grpc:
+                      endpoint: 0.0.0.0:4317
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits:   { cpu: 500m, memory: 512Mi }
+            persistence:
+              enabled: false
+            service:
+              type: ClusterIP
+        repoURL: https://grafana.github.io/helm-charts
+        targetRevision: 1.14.0
+    operationState:
+      finishedAt: "2026-10-24T23:08:09Z"
+      message: successfully synced (all tasks run)
+      operation:
+        initiatedBy:
+          automated: true
+        retry:
+          limit: 5
+        sync:
+          prune: true
+          revision: 1.14.0
+          syncOptions:
+          - ServerSideApply=true
+      phase: Succeeded
+      retryCount: 4
+      startedAt: "2026-10-24T22:35:45Z"
+      syncResult:
+        resources:
+        - group: ""
+          hookPhase: Running
+          kind: ServiceAccount
+          message: serviceaccount/tempo serverside-applied
+          name: tempo
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: ConfigMap
+          message: configmap/tempo serverside-applied
+          name: tempo
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: ""
+          hookPhase: Running
+          kind: Service
+          message: service/tempo serverside-applied
+          name: tempo
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        - group: apps
+          hookPhase: Running
+          kind: StatefulSet
+          message: statefulset.apps/tempo serverside-applied
+          name: tempo
+          namespace: monitoring
+          status: Synced
+          syncPhase: Sync
+          version: v1
+        revision: 1.14.0
+        source:
+          chart: tempo
+          helm:
+            releaseName: tempo
+            values: |
+              tempo:
+                retention: 24h
+                storage:
+                  trace:
+                    backend: local
+                    local:
+                      path: /var/tempo/traces
+                receivers:
+                  otlp:
+                    protocols:
+                      http:
+                        endpoint: 0.0.0.0:4318
+                      grpc:
+                        endpoint: 0.0.0.0:4317
+                resources:
+                  requests: { cpu: 100m, memory: 256Mi }
+                  limits:   { cpu: 500m, memory: 512Mi }
+              persistence:
+                enabled: false
+              service:
+                type: ClusterIP
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 1.14.0
+    reconciledAt: "2026-10-25T00:08:05Z"
+    resources:
+    - kind: ConfigMap
+      name: tempo
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - health:
+        status: Healthy
+      kind: Service
+      name: tempo
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - kind: ServiceAccount
+      name: tempo
+      namespace: monitoring
+      status: Synced
+      version: v1
+    - group: apps
+      health:
+        message: statefulset rolling update complete 1 pods at revision tempo-67ddf6fffc...
+        status: Healthy
+      kind: StatefulSet
+      name: tempo
+      namespace: monitoring
+      status: Synced
+      version: v1
+    sourceType: Helm
+    summary:
+      images:
+      - grafana/tempo:2.6.1
+    sync:
+      comparedTo:
+        destination:
+          namespace: monitoring
+          server: https://kubernetes.default.svc
+        source:
+          chart: tempo
+          helm:
+            releaseName: tempo
+            values: |
+              tempo:
+                retention: 24h
+                storage:
+                  trace:
+                    backend: local
+                    local:
+                      path: /var/tempo/traces
+                receivers:
+                  otlp:
+                    protocols:
+                      http:
+                        endpoint: 0.0.0.0:4318
+                      grpc:
+                        endpoint: 0.0.0.0:4317
+                resources:
+                  requests: { cpu: 100m, memory: 256Mi }
+                  limits:   { cpu: 500m, memory: 512Mi }
+              persistence:
+                enabled: false
+              service:
+                type: ClusterIP
+          repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 1.14.0
+      revision: 1.14.0
+      status: Synced
+kind: List
+metadata:
+  resourceVersion: ""
