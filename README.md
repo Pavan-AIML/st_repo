@@ -1,4 +1,4 @@
-!# ShopLite — Platform Assessment
+# ShopLite — Platform Assessment
 
 **Candidate:** Pavan Kumar
 **Reviewer:** Mario Turic, Softtribe
@@ -62,6 +62,41 @@ flowchart TB
 **One shared AKS cluster**, two namespaces. Each env has its own RG for
 Postgres + Redis + Workload Identity. See `docs/architecture.md` for
 details and `docs/adr/002-shared-cluster.md` for the rationale.
+
+### CI/CD + observability
+
+```mermaid
+flowchart LR
+  Dev[Developer push] --> GHA[GitHub Actions<br/>OIDC → Azure]
+  GHA --> Syft[Syft SBOM]
+  GHA --> Trivy[Trivy vuln scan]
+  GHA --> Cosign[Cosign keyless sign]
+  Syft --> ACR[(ACR<br/>crshoplite)]
+  Trivy --> ACR
+  Cosign --> ACR
+
+  ACR -. digest+signature .-> Kyverno[Kyverno<br/>verifyImages]
+  GH2[(gitops/ change)] --> ArgoCD2[Argo CD]
+  ArgoCD2 -- apply --> Kyverno
+  Kyverno -- admit --> Rollout[Argo Rollouts<br/>canary 10→50→100]
+  Rollout --> Pods[api pods]
+
+  Pods -. metrics .-> Prom[kube-prometheus-stack]
+  Pods -. logs .-> Loki[Loki + Alloy]
+  Pods -. traces OTLP .-> Tempo[Tempo]
+  Prom --> AT[AnalysisTemplate<br/>5xx rate < 1%]
+  AT -. verdict .-> Rollout
+  Prom --> AM[Alertmanager<br/>burn-rate alerts]
+  Prom --> Graf[Grafana dashboards]
+  Loki --> Graf
+  Tempo --> Graf
+```
+
+Promotion is a Git edit (`values-staging.yaml` → digest). Argo CD syncs,
+Kyverno enforces that the image is Cosign-signed and digest-pinned, the
+Argo Rollouts canary ships 10% → analysis → 50% → analysis → 100%, and
+the AnalysisTemplate aborts the rollout if the 5xx rate exceeds 1% during
+either analysis window. SLO burn-rate alerts are a backstop.
 
 ---
 
@@ -201,15 +236,27 @@ az group delete --name rg-tfstate-shoplite --yes --no-wait
 
 ## Promotion workflow
 
-Staging → prod is a Git change, not a kubectl command.
+Staging → prod is a Git change, not a kubectl command. Images are pinned
+by digest (not tag) because Kyverno's `verifyImages` policy requires it —
+a tag can be reused with a different signed artefact, a digest cannot.
 
-1. CI builds new image, pushes to `crshoplite.azurecr.io/shoplite-api:v0.1.1`.
-2. Edit `gitops/staging/shoplite.yaml` → change `api.image.tag` to `0.1.1`.
-3. PR → merge → Argo CD deploys to **staging only** (~3 min).
-4. Verify staging; when happy, edit `gitops/prod/shoplite.yaml` the same way.
-5. PR → merge → Argo CD deploys to prod.
-
-See `docs/promotion.md` for the full flow (TBD).
+1. CI builds the api/worker images from a commit, runs Syft + Trivy,
+   Cosign-signs them (keyless OIDC), pushes to
+   `crshoplite.azurecr.io/shoplite-api:<commit-sha>` with a resolvable
+   digest.
+2. Fetch the new digest:
+   ```bash
+   az acr manifest list-metadata crshoplite.azurecr.io/shoplite-api \
+     --query "[?tags[?@=='<commit-sha>']].digest" -o tsv
+   ```
+3. Edit `charts/shoplite/values-staging.yaml` → set `api.image.tag` to
+   `<commit-sha>` and `api.image.digest` to `sha256:…`. PR → merge →
+   Argo CD syncs to **staging only** → Argo Rollouts runs a 10%/50%/100%
+   canary with Prometheus analysis at each pause.
+4. Verify staging via Grafana + the apps. If the canary analysis aborts,
+   the Rollout reverts automatically — see §Phase 13 drill.
+5. When happy, bump `charts/shoplite/values-prod.yaml` the same way → PR
+   → merge → Argo CD + Rollouts handle prod the same way.
 
 ---
 
@@ -227,16 +274,58 @@ See `docs/promotion.md` for the full flow (TBD).
 
 ---
 
+## Phase 13 drill (Task 2)
+
+On 2026-10-25 we promoted a signed-but-faulty api build
+(`BAD_BUILD_ERROR_PCT=20`, returning HTTP 500 on ~20% of `/products`) to
+staging to test the auto-rollback path end-to-end.
+
+**Outcome.** Rollout canary caught the bad build and auto-reverted in
+~105s (target: <5 min). The 1 canary pod served the real failure (load
+generator peak 5.2% errors in a 15s window), stable pods kept serving
+100% 2xx throughout, zero prod impact.
+
+**Honest findings surfaced by the drill** (full detail in the
+postmortem):
+
+1. AnalysisTemplate hardcodes a Prometheus service name that doesn't
+   match the installed `kps-prometheus` — the abort fired on
+   `consecutiveErrorLimit` from DNS failures, not on an actual 5xx
+   reading. Right outcome, wrong signal.
+2. Argo CD v2.12.6 can't server-side-diff K8s 1.33's new
+   `.status.terminatingReplicas` field — forced `ServerSideApply=false`
+   as a workaround. Proper fix: Argo CD v2.13+.
+3. Burn-rate alert window (5m) is longer than the canary window (~90s)
+   so no alert fired. Needs a short-window partner.
+
+Full postmortem:
+[`docs/runbooks/postmortem-INC-20261025-001-drill.md`](docs/runbooks/postmortem-INC-20261025-001-drill.md).
+Raw evidence (rollout timeline, load generator stats, AnalysisRun CR,
+`kubectl describe`): `docs/evidence/phase13-drill/`.
+
+---
+
 ## Known limitations
 
-- **Redis Basic SKU is public-endpoint** (no private endpoint on Basic SKU
+- **Argo CD v2.12.6 vs K8s 1.33** — the bundled OpenAPI schema doesn't
+  know about `.status.terminatingReplicas` on Deployment/ReplicaSet/
+  StatefulSet, so server-side diff fails and sync wedges silently. We
+  disabled `ServerSideApply=true` on the shoplite Applications as a
+  workaround (`gitops/{staging,prod}/shoplite.yaml`). Proper fix is to
+  upgrade Argo CD to v2.13+ which ships an updated schema. Postmortem
+  action item #4.
+- **AnalysisTemplate's Prometheus URL is wrong** —
+  `charts/shoplite/templates/rollout-api.yaml:149` hardcodes
+  `kube-prometheus-stack-prometheus...`, but the stack is installed with
+  `fullnameOverride: kps`, so the real service is `kps-prometheus...`.
+  The Rollout canary still aborts on bad builds (via
+  `consecutiveErrorLimit` on query failures), but the abort is not
+  reading the SLI we think it is. Postmortem action item #1.
+- **Redis Basic SKU is public-endpoint** (no private endpoint on Basic
   — Premium is 20× the cost). TLS-only + access key stored in Key Vault.
   Documented in `docs/adr/`.
-- **AKS SKU is Free tier** (no control-plane SLA). €70/mo for Standard tier
-  SLA was out of the €200 budget. One-line change to upgrade.
-- **No managed Prometheus** — kube-prometheus-stack isn't installed yet
-  (Task 2 Phase 12).
-- **No SBOM or image signing** (Task 2 Phase 9).
+- **AKS SKU is Free tier** (no control-plane SLA). €70/mo for Standard
+  tier SLA was out of the €200 budget. One-line change to upgrade.
 - **No developer group binding** — `rbac.devReadonly.groupObjectId` is
   empty because no Entra group was created for the assessment. The Role
   exists; add the group ID to activate.
@@ -252,6 +341,11 @@ See `docs/promotion.md` for the full flow (TBD).
 | 2026-10-20 | 2h 00m | Phase 0 — repo scaffolding, ADR-001, app stubs, Makefile skeleton |
 | 2026-10-21 | 7h 30m | Phases 1–4 — Terraform modules + env compositions, Dockerfiles + compose smoke test (caught redis async_timeout bug), Helm chart with lint-clean renders, GitOps manifests (root apps + env apps + platform addons) |
 | 2026-10-22 | 5h 30m | Shared-cluster refactor (ADR-002) + Phase 7 (NetworkPolicies + PSS + RBAC) + Phase 8 (docs + 2 runbooks) + Phase 9.1 (GitHub Actions CI with Cosign + Trivy) |
+| 2026-10-23 | 4h 00m | Phase 5 (External Secrets Operator + Azure Key Vault) + Phase 6 (ingress-nginx + cert-manager) + first live `make up` on Azure |
+| 2026-10-24 | 6h 30m | Phase 9 CI pipeline hardening, Phase 10 (Kyverno `verifyImages` + rejection demo), Phase 11 (Argo Rollouts canary + AnalysisTemplate), Phase 12 (kube-prometheus-stack + SLO rules + ServiceMonitor + Loki + Tempo + OTel instrumentation + burn-rate alert routing + postmortem template) |
+| 2026-10-25 | 5h 30m | Phase 13 incident drill. Debugging detour: Argo CD application-controller got wedged on K8s 1.33's `.status.terminatingReplicas` field (OpenAPI schema mismatch in v2.12.6). Documented in the postmortem. Drill ran via direct `kubectl patch` on the Rollout; canary + auto-rollback worked in ~105s. README + postmortem written. |
 
-Running total: **15h 00m** of the 20–30h budget.
-Projected final: ~22h once Azure apply + Phases 5/6 + Task 2 remainder are done.
+Running total: **~31h 00m**, slightly over the 20–30h budget. The
+overage is almost entirely the Argo CD / K8s 1.33 incident surfaced
+during drill setup — real-world debugging and a legitimate incident
+finding, not scope creep.
