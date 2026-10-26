@@ -38,6 +38,22 @@ spec:
     - group: apps
       kind: StatefulSet
       jsonPointers: ["/status/terminatingReplicas"]
+    # Argo Rollouts controller mutates the live image during canary promotion;
+    # ignore so Argo CD doesn't fight it. Git remains source of truth via chart values.
+    - group: argoproj.io
+      kind: Rollout
+      name: shoplite-shoplite-api
+      jqPathExpressions:
+        - '.spec.template.spec.containers[].image'
+        - '.spec.replicas'
+    # Prometheus Operator adds validation labels/annotations on PrometheusRule
+    # after apply; ignore to prevent perpetual OutOfSync.
+    - group: monitoring.coreos.com
+      kind: PrometheusRule
+      name: shoplite-shoplite-api-slo
+      jqPathExpressions:
+        - '.metadata.annotations'
+        - '.metadata.labels'
   # Argo creates the namespace with these labels baked in. The restricted
   # Pod Security Standard is enforced on every pod created here.
   syncPolicy:
