@@ -228,9 +228,12 @@ resource "helm_release" "argocd" {
         }
       }
       controller = {
+        # Memory bumped after repeated OOMKills (exit 137) on the application
+        # controller — 512Mi was crashing every ~15s while reconciling 14 apps
+        # (kube-prometheus-stack alone balloons on diff). 1Gi gives headroom.
         resources = {
-          requests = { cpu = "100m", memory = "256Mi" }
-          limits   = { cpu = "500m", memory = "512Mi" }
+          requests = { cpu = "100m", memory = "512Mi" }
+          limits   = { cpu = "500m", memory = "1Gi" }
         }
       }
       server = {
