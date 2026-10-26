@@ -144,13 +144,22 @@ if OTEL_ENDPOINT:
 
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
+    # Record every request, even when the inner app raises. Previous version
+    # called .inc() only after a successful call_next, so HTTPException-based
+    # 5xx responses were silently missed — see docs/postmortems/
+    # INC-20261026-001-silent-5xx.md. The try/finally ensures the counter
+    # always moves; status defaults to 500 if we never got a Response at all.
     start = time.perf_counter()
-    response = await call_next(request)
-    latency = time.perf_counter() - start
-    path = request.url.path
-    REQUEST_COUNT.labels(method=request.method, path=path, status=response.status_code).inc()
-    REQUEST_LATENCY.labels(method=request.method, path=path).observe(latency)
-    return response
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        latency = time.perf_counter() - start
+        path = request.url.path
+        REQUEST_COUNT.labels(method=request.method, path=path, status=status_code).inc()
+        REQUEST_LATENCY.labels(method=request.method, path=path).observe(latency)
 
 
 # ---------------------------------------------------------------------------
