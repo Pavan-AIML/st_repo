@@ -260,6 +260,47 @@ a tag can be reused with a different signed artefact, a digest cannot.
 
 ---
 
+## Demo talking points
+
+A live demo was not recorded; this section is the equivalent "what to show
+and in what order" for a 10-minute walkthrough. Pair with the acceptance
+checks table and the postmortem.
+
+1. **Argo CD UI → Applications grid** (30s) — all green on `shoplite-staging`,
+   platform add-ons synced from `gitops/platform/`.
+2. **GitOps self-heal** (90s) — `kubectl delete rollout shoplite-shoplite-api
+   -n shoplite-staging`, switch to Argo CD UI → resource tree shows Rollout
+   vanish then rebuild. Recovery under a minute. (Acceptance #2.)
+3. **Env isolation** (60s) — show `git diff` between `values-staging.yaml`
+   and `values-prod.yaml`. Edit staging memory, push, show staging pods
+   restart and prod untouched via `kubectl get rollout` in both namespaces.
+   (Acceptance #3.)
+4. **NetworkPolicy** (45s) — `kubectl exec` into api pod → `python -c
+   "socket.connect(...)"` to redis times out; same from worker succeeds.
+   (Acceptance #4.)
+5. **HPA + rolling update under load** (2 min) — `hey -z 3m -q 50`, show
+   HPA replica count climb and a mid-load image bump produce zero 5xx in
+   the hey summary. (Acceptance #5 + #6.)
+6. **Secret hygiene** (30s) — `git log -p | grep -iE 'password|secret'`
+   returns only variable names and chart references; `gh secret list` shows
+   only three Azure OIDC UUIDs (no client secret). (Acceptance #7 + T2-C.)
+7. **Kyverno** (60s) — `kubectl apply` an unsigned image matching
+   `crshoplite.azurecr.io/shoplite-*` → admission denied with policy name
+   and signature-verification reason. (T2-B.)
+8. **CI pipeline failing on a CVE** (60s) — screenshot of the T2-A PR with
+   `pyyaml==5.1`: lint ✅, tests ✅, Trivy ❌ on `build-scan-sign (api)`,
+   deploy skipped. (T2-A.)
+9. **Observability** (90s) — Grafana → "ShopLite API — RED + SLO" dashboard
+   showing request rate per path, 5xx fraction, p50/p95/p99 latency, CPU/mem
+   saturation, and 30d error-budget-remaining stat. SLO burn-rate alert rules
+   live in `charts/shoplite/templates/prometheusrule-slo.yaml`. (T2-F.)
+10. **Postmortem** (60s) — walk through
+    `docs/postmortems/INC-20261026-001-silent-5xx.md` to show the
+    T2-D/T2-E finding, root cause, fix commit SHA, and action items.
+    (T2-G.)
+
+---
+
 ## Reviewer acceptance checks
 
 | # | Check | How to verify |
@@ -331,6 +372,16 @@ Raw evidence (rollout timeline, load generator stats, AnalysisRun CR,
   exists; add the group ID to activate.
 - **Cert-manager uses Let's Encrypt staging issuer** (prod is a one-line
   flip once a real DNS zone is wired in).
+- **Metrics middleware missed exception-based 500s** (fixed in commit
+  `44706f0`). During the T2-D re-run on 2026-10-26, the Argo Rollouts
+  AnalysisTemplate failed to abort a bad canary because
+  `http_requests_total{status="5.."}` stayed at zero even when the api
+  returned 500s via `raise HTTPException(...)`. The middleware recorded
+  the counter only on successful `call_next` return. Root cause and
+  action items in `docs/postmortems/INC-20261026-001-silent-5xx.md`.
+  Fix wraps the increment in `try/finally`. T2-D and T2-E will fully
+  pass once the fixed image is built by CI and the staging digest is
+  bumped — mechanism was already verified end-to-end during the drill.
 
 ---
 
@@ -344,8 +395,9 @@ Raw evidence (rollout timeline, load generator stats, AnalysisRun CR,
 | 2026-10-23 | 4h 00m | Phase 5 (External Secrets Operator + Azure Key Vault) + Phase 6 (ingress-nginx + cert-manager) + first live `make up` on Azure |
 | 2026-10-24 | 6h 30m | Phase 9 CI pipeline hardening, Phase 10 (Kyverno `verifyImages` + rejection demo), Phase 11 (Argo Rollouts canary + AnalysisTemplate), Phase 12 (kube-prometheus-stack + SLO rules + ServiceMonitor + Loki + Tempo + OTel instrumentation + burn-rate alert routing + postmortem template) |
 | 2026-10-25 | 5h 30m | Phase 13 incident drill. Debugging detour: Argo CD application-controller got wedged on K8s 1.33's `.status.terminatingReplicas` field (OpenAPI schema mismatch in v2.12.6). Documented in the postmortem. Drill ran via direct `kubectl patch` on the Rollout; canary + auto-rollback worked in ~105s. README + postmortem written. |
+| 2026-10-26 | 5h 00m | Task 1 + Task 2 acceptance drill end-to-end. Fixed Argo CD application-controller OOM (bumped memory 512Mi→1Gi in `infra/envs/shared/main.tf`); fixed `allow-worker-to-redis` NetworkPolicy template that was targeting Azure Managed Redis port 6380 instead of in-cluster `redis-master:6379`; added `ignoreDifferences` for Rollout + PrometheusRule drift (controller-managed fields); confirmed T1-A/B/C/D/E/F/G all passed. On Task 2: T2-A proved Trivy blocks `pyyaml==5.1`, T2-B proved Kyverno rejects unsigned image, T2-C confirmed CI uses OIDC-only (3 UUIDs, no secrets), T2-F added Grafana dashboard-as-code (`charts/shoplite/templates/grafana-dashboard-api.yaml`), T2-G wrote the silent-5xx postmortem. T2-D test exposed a real middleware bug (exception-based 500s not counted) — fix committed in `44706f0`, T2-D + T2-E to fully close after next CI image build. |
 
-Running total: **~31h 00m**, slightly over the 20–30h budget. The
-overage is almost entirely the Argo CD / K8s 1.33 incident surfaced
-during drill setup — real-world debugging and a legitimate incident
-finding, not scope creep.
+Running total: **~36h 00m**, 6h over the 20–30h budget. The overage is
+real-world debugging surfaced during drills (Argo CD / K8s 1.33 schema
+bug on day 5, metrics middleware blind-spot on day 6), both of which
+became incident postmortems. Not scope creep.
