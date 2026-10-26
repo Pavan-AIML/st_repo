@@ -107,8 +107,13 @@ either analysis window. SLO burn-rate alerts are a backstop.
 ├── apps/                       # tiny api (FastAPI) + worker (Python asyncio)
 │   ├── api/                    #   HTTP service: /healthz /readyz /metrics /products
 │   └── worker/                 #   Redis BLPOP → Postgres INSERT
-├── charts/shoplite/            # Helm chart: Deployment + Service + HPA + PDB
-│                               #   + NetworkPolicies + RBAC + SA (Workload Identity)
+├── charts/shoplite/            # Helm chart. For api: Argo Rollouts canary +
+│                               #   Service (stable + canary) + HPA + PDB + Ingress.
+│                               #   For worker: Deployment. Shared: ServiceAccount
+│                               #   (Workload Identity), 8 NetworkPolicies, dev RBAC,
+│                               #   ExternalSecret, ServiceMonitor, PrometheusRule
+│                               #   (SLO burn-rate), AnalysisTemplate (canary gate),
+│                               #   Grafana dashboard ConfigMap.
 ├── infra/
 │   ├── modules/                # Reusable Terraform modules
 │   │   ├── networking/         # VNet + subnets + Postgres private DNS zone
@@ -127,7 +132,10 @@ either analysis window. SLO burn-rate alerts are a backstop.
 │   └── prod/                   # shoplite Application for prod
 ├── docs/
 │   ├── adr/                    # Architecture Decision Records
-│   └── runbooks/               # Operational runbooks (rotate pw, restore db)
+│   ├── runbooks/               # Operational runbooks (rotate pw, restore db)
+│   ├── postmortems/            # Incident writeups from drills
+│   ├── evidence/               # Reviewer artefacts (Kyverno rejections, drill output)
+│   └── architecture.md         # Deeper architecture notes
 ├── scripts/                    # Bootstrap script for tfstate
 ├── Makefile                    # one-command targets (make up, make down, etc.)
 └── docker-compose.yml          # Local smoke test for api + worker
