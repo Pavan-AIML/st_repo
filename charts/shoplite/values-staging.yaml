@@ -18,11 +18,13 @@ redis:
 api:
   image:
     repository: shoplite-api
-    tag: "af3f30d362f5"
-    # Signed by CI (Cosign keyless) at commit af3f30d. Phase 13 drill
-    # (BAD_BUILD_ERROR_PCT=20) completed on 2026-10-25; staging is back
-    # on this known-good digest. See postmortem INC-20261025-001.
-    digest: "sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6"
+    tag: "961b727cdc1f"
+    # Signed by CI (Cosign keyless) at commit 961b727. Includes middleware
+    # fix from 44706f0 so http_requests_total records every response path
+    # (incl. exception-based 500s). Needed for T2-D/T2-E to actually fire
+    # the burn-rate alert and canary auto-rollback. See postmortems
+    # INC-20261025-001 and INC-20261026-001.
+    digest: "sha256:5a3373dd2ae175c771407bb6a425134bb0a591566eced2e7644362a0d8d4ca75"
   replicaCount: 2
   # Progressive delivery enabled in staging so Phase 13 drills exercise
   # the Rollout canary + AnalysisTemplate auto-rollback path.
