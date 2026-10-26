@@ -24,15 +24,6 @@ api:
     # on this known-good digest. See postmortem INC-20261025-001.
     digest: "sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6"
   replicaCount: 2
-  # T1-C acceptance test — proving staging-only promotion. Prod's resource
-  # block in values-prod.yaml is untouched by this change.
-  resources:
-    requests:
-      cpu: 100m
-      memory: 192Mi
-    limits:
-      cpu: 500m
-      memory: 256Mi
   # Progressive delivery enabled in staging so Phase 13 drills exercise
   # the Rollout canary + AnalysisTemplate auto-rollback path.
   rollout:
