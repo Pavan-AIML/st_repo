@@ -26,11 +26,6 @@ api:
     # INC-20261025-001 and INC-20261026-001.
     digest: "sha256:5a3373dd2ae175c771407bb6a425134bb0a591566eced2e7644362a0d8d4ca75"
   replicaCount: 2
-  # T2-D re-run after middleware fix (44706f0). Inject 20% HTTP 500 on
-  # /products. With the fix, http_requests_total{status="500"} now
-  # increments, so AnalysisTemplate's error-rate query will see the
-  # breach and auto-abort the canary within ~3 min.
-  badBuildErrorPct: 20
   # Progressive delivery enabled in staging so Phase 13 drills exercise
   # the Rollout canary + AnalysisTemplate auto-rollback path.
   rollout:
