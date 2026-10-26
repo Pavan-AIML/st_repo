@@ -9,6 +9,7 @@ opentelemetry-sdk==1.28.2
 opentelemetry-exporter-otlp-proto-http==1.28.2
 opentelemetry-instrumentation-fastapi==0.49b2
 opentelemetry-instrumentation-sqlalchemy==0.49b2
-# T2-A acceptance test — intentionally vulnerable (CVE-2018-18074 et al.)
-# Expect: Trivy scan stage of ci.yml fails on CRITICAL findings and blocks the pipeline.
-requests==2.6.0
+# T2-A acceptance test — intentionally vulnerable: PyYAML 5.1 has CVE-2020-14343
+# (arbitrary code execution, CVSS 9.8 / Critical). Not imported by the app, so
+# pytest still passes — Trivy's build-scan-sign stage must be the one that fails.
+pyyaml==5.1
