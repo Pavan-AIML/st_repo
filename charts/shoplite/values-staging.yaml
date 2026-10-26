@@ -24,10 +24,6 @@ api:
     # on this known-good digest. See postmortem INC-20261025-001.
     digest: "sha256:165f9470fc86d9cbb457bf8c7413d40ebe92480a263ea7f6eaaf33d3802a7ad6"
   replicaCount: 2
-  # T2-D acceptance test — inject 20% HTTP 500 on /products so the Rollout
-  # AnalysisRun (error-rate < 1% success condition) fails and auto-aborts.
-  # Expect rollback within ~3 min of pushing this change.
-  badBuildErrorPct: 20
   # Progressive delivery enabled in staging so Phase 13 drills exercise
   # the Rollout canary + AnalysisTemplate auto-rollback path.
   rollout:
