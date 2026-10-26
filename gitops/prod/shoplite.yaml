@@ -24,6 +24,9 @@ spec:
   # Workaround for Argo CD v2.12 schema not knowing K8s 1.33's
   # .status.terminatingReplicas. Remove on Argo CD v2.13+.
   ignoreDifferences:
+    - group: argoproj.io
+      kind: Deployment
+      jsonPointers: ["/status/terminatingReplicas"]
     - group: apps
       kind: Deployment
       jsonPointers: ["/status/terminatingReplicas"]
@@ -33,6 +36,20 @@ spec:
     - group: apps
       kind: StatefulSet
       jsonPointers: ["/status/terminatingReplicas"]
+    - group: argoproj.io
+      kind: Rollout
+      name: shoplite-soplite-api
+      jqPathExpressions:
+        - '.spec.template.spec.containers[].image'
+        - '.spec.replicas'
+    - group: monitoring.coreos.com
+      kind: PrometheusRule
+      name: shoplite-shoplite-api-slo
+      jqpPathExpressions:
+        - '.metadata.annotations'
+        - '.metadata.labels'
+
+
   syncPolicy:
     managedNamespaceMetadata:
       labels:
