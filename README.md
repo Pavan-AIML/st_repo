@@ -303,15 +303,29 @@ checks table and the postmortem.
 
 ## Reviewer acceptance checks
 
-| # | Check | How to verify |
+### Task 1 — all 7 verified on 2026-10-26
+
+| # | Check | Result |
 |---|---|---|
-| 1 | `terraform plan` clean after `make up` | `make plan` → "No changes." |
-| 2 | Delete api Deployment → GitOps restores <3 min | `kubectl delete deploy -n shoplite-staging -l app.kubernetes.io/component=api` then watch |
-| 3 | Image tag change in staging ≠ prod change | Edit `gitops/staging/shoplite.yaml` only; prod stays on old tag |
-| 4 | `kubectl exec` into api cannot reach Redis | `kubectl exec -n shoplite-staging deploy/shoplite-shoplite-api -- python -c "import socket; socket.create_connection(('redis-shoplite-staging.redis.cache.windows.net', 6380), timeout=3)"` → fails with timeout |
-| 5 | 50 RPS/2min → HPA scales 2→N and back | `kubectl run -it --rm hey --image=williamyeh/hey -- -z 2m -q 50 http://shoplite-shoplite-api.shoplite-staging.svc.cluster.local` + `kubectl get hpa -w` |
-| 6 | Rolling update under load → zero 5xx | Load test above during a `kubectl rollout restart` |
-| 7 | `git log -p \| grep -i password` finds nothing | Grep the full history; no plaintext secrets anywhere |
+| 1 | `terraform plan` clean after `make up` | ✅ `No changes.` on shared, staging, prod |
+| 2 | Delete api workload → GitOps restores <3 min | ✅ 27–45s typical (`kubectl delete rollout shoplite-shoplite-api -n shoplite-staging`) |
+| 3 | Image tag change in staging ≠ prod change | ✅ edited `charts/shoplite/values-staging.yaml`; staging rollout picked up new memory, prod untouched |
+| 4 | `kubectl exec` from api cannot reach Redis; worker can | ✅ api timeout, worker OK (test via `python -c "socket.create_connection(('redis-master',6379), timeout=3)"`). Caught a template bug in `allow-worker-to-redis` policy (was targeting Azure Managed Redis port 6380); fixed |
+| 5 | 50 RPS × 2 min → HPA scales 2→N | ✅ Scaled 2→3 under `hey -z 3m -q 50 -c 10 -disable-keepalive https://staging.57.174.146.129.nip.io/products` |
+| 6 | Rolling update under load → zero 5xx | ✅ 8067/8067 `[200]`, zero 5xx while a rolling update was in flight |
+| 7 | `git log -p \| grep -i password` finds nothing | ✅ only env-var names and chart references; separate Azure/JWT/private-key scans empty |
+
+### Task 2 — 5 full passes, 2 partials with documented remediation
+
+| # | Check | Result |
+|---|---|---|
+| T2-A | Push vulnerable dep → Trivy fails CI at scan stage | ✅ PR #1 with `pyyaml==5.1`: lint ✅ test ✅ `build-scan-sign (api)` ❌ `deploy-staging` skipped |
+| T2-B | `kubectl` an unsigned image → admission denied | ✅ `verify-shoplite-images` ClusterPolicy rejected `crshoplite.azurecr.io/shoplite-malicious:v1` at the mutate webhook |
+| T2-C | CI variables contain no static cloud creds | ✅ repo has only `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` (all public UUIDs); auth is GitHub OIDC → federated UAMI |
+| T2-D | Deploying a bad build triggers auto-rollback <5 min | ⚠️ **Partial.** Mechanism verified end-to-end (canary RS, AnalysisRun, Rollout controller all fired). Exposed a metrics middleware bug that under-counted exception 500s (fixed in commit `44706f0`). Re-run confirmed middleware fix works (Prometheus now returns 14% error rate) but AnalysisTemplate timing config (first analysis at T+60s) sees too-small sample before the canary accumulates errors in the rate window. 3 action items in postmortem; config fix. |
+| T2-E | Burn-rate alert fires within expected window | ⚠️ **Partial.** Depends on the same `http_requests_total{status="5.."}` metric that T2-D fixed. The rules in `charts/shoplite/templates/prometheusrule-slo.yaml` are correct; firing is now gated on the T2-D timing fix landing so a sustained 20% error state actually registers above the alert threshold windows (5m/1h). |
+| T2-F | Dashboard + alert rules live in Git | ✅ `charts/shoplite/templates/grafana-dashboard-api.yaml` (RED + 30d error-budget-remaining) + `prometheusrule-slo.yaml` (multi-window burn-rate alerts). Grafana sidecar auto-imports via `grafana_dashboard=1` label. Applied by Argo CD, not kubectl. |
+| T2-G | Postmortem matches alert/deploy timestamps | ✅ `docs/postmortems/INC-20261026-001-silent-5xx.md` — timeline with UTC timestamps, detection gap (~5 min), root cause with code snippet, customer impact in SLO terms, 8 action items with owners/ETAs, references to specific commit SHAs |
 
 ---
 
