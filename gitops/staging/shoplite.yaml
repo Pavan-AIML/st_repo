@@ -38,14 +38,17 @@ spec:
     - group: apps
       kind: StatefulSet
       jsonPointers: ["/status/terminatingReplicas"]
-    # Argo Rollouts controller mutates the live image during canary promotion;
-    # ignore so Argo CD doesn't fight it. Git remains source of truth via chart values.
+    # Argo Rollouts controller + HPA + manual `kubectl rollout restart` all
+    # mutate fields on the live Rollout. Ignore the ones not owned by GitOps so
+    # Argo CD doesn't fight the specialist controllers. Git stays source of truth
+    # for strategy, steps, template, probes, resources, etc.
     - group: argoproj.io
       kind: Rollout
       name: shoplite-shoplite-api
       jqPathExpressions:
-        - '.spec.template.spec.containers[].image'
-        - '.spec.replicas'
+        - '.spec.replicas'              # HPA writes this
+        - '.spec.restartAt'             # `kubectl rollout restart` writes this
+        - '.metadata.annotations'       # last-applied-config + rollout.argoproj.io/revision
     # Prometheus Operator adds validation labels/annotations on PrometheusRule
     # after apply; ignore to prevent perpetual OutOfSync.
     - group: monitoring.coreos.com
