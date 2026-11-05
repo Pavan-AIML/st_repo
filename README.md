@@ -1,10 +1,5 @@
 # ShopLite — Platform Assessment
 
-**Candidate:** Pavan Kumar
-**Reviewer:** Mario Turic, Softtribe
-**Azure subscription:** Softtribe_Azure_Practical_Tasks (`3e4b93a6-966a-4d17-af62-540ffd96a13c`)
-**Region:** Germany West Central
-
 A reproducible, secure Kubernetes platform for a two-service web app (api +
 worker, Postgres + Redis), on AKS, with two environments (staging + prod)
 managed entirely via Terraform + GitOps.
